@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <!-- 배경 -->
+    <rect x="0" y="0" width="1200" height="800" fill="#f8fafc"/>
+    
+    <!-- 헤더 -->
+    <rect x="0" y="0" width="1200" height="60" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="20" y="38" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1e293b">다이어그램 에디터</text>
+    
+    <!-- 헤더 버튼들 -->
+    <rect x="950" y="15" width="60" height="30" rx="4" fill="#3b82f6" stroke="#2563eb"/>
+    <text x="970" y="33" font-family="Arial, sans-serif" font-size="12" fill="#ffffff">저장</text>
+    
+    <rect x="1020" y="15" width="60" height="30" rx="4" fill="#10b981" stroke="#059669"/>
+    <text x="1040" y="33" font-family="Arial, sans-serif" font-size="12" fill="#ffffff">실행</text>
+    
+    <rect x="1090" y="15" width="80" height="30" rx="4" fill="#6b7280" stroke="#4b5563"/>
+    <text x="1115" y="33" font-family="Arial, sans-serif" font-size="12" fill="#ffffff">불러오기</text>
+    
+    <!-- 좌측 사이드바 (노드 라이브러리) -->
+    <rect x="0" y="60" width="250" height="740" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="20" y="90" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#374151">노드 라이브러리</text>
+    
+    <!-- 검색 박스 -->
+    <rect x="20" y="100" width="210" height="32" rx="4" fill="#f9fafb" stroke="#d1d5db"/>
+    <text x="30" y="120" font-family="Arial, sans-serif" font-size="12" fill="#9ca3af">노드 검색...</text>
+    
+    <!-- 데이터베이스 노드 -->
+    <rect x="20" y="150" width="210" height="60" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+    <circle cx="40" cy="170" r="8" fill="#3b82f6"/>
+    <text x="55" y="175" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1e40af">데이터베이스 노드</text>
+    <text x="55" y="190" font-family="Arial, sans-serif" font-size="11" fill="#3730a3">MySQL, Logpresso</text>
+    
+    <!-- 데이터 처리 노드 -->
+    <rect x="20" y="220" width="210" height="60" rx="6" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+    <circle cx="40" cy="240" r="8" fill="#10b981"/>
+    <text x="55" y="245" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#065f46">데이터 처리 노드</text>
+    <text x="55" y="260" font-family="Arial, sans-serif" font-size="11" fill="#047857">필터링, 집계, 변환</text>
+    
+    <!-- 출력 노드 -->
+    <rect x="20" y="290" width="210" height="60" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+    <circle cx="40" cy="310" r="8" fill="#f59e0b"/>
+    <text x="55" y="315" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#92400e">출력 노드</text>
+    <text x="55" y="330" font-family="Arial, sans-serif" font-size="11" fill="#a16207">테이블, 차트, 파일</text>
+    
+    <!-- 메인 캔버스 영역 -->
+    <rect x="250" y="60" width="700" height="740" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+    
+    <!-- 캔버스 헤더 -->
+    <rect x="250" y="60" width="700" height="40" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="270" y="82" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#374151">캔버스</text>
+    
+    <!-- 줌 컨트롤 -->
+    <rect x="900" y="65" width="40" height="30" rx="4" fill="#f3f4f6" stroke="#d1d5db"/>
+    <text x="915" y="83" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">100%</text>
+    
+    <!-- 그리드 패턴 -->
+    <defs>
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f1f5f9" stroke-width="1"/>
+        </pattern>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
+        </marker>
+    </defs>
+    <rect x="250" y="100" width="700" height="700" fill="url(#grid)"/>
+    
+    <!-- 샘플 노드 1 - MySQL 소스 -->
+    <rect x="320" y="200" width="140" height="80" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+    <circle cx="340" cy="220" r="6" fill="#3b82f6"/>
+    <text x="355" y="225" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e40af">MySQL 소스</text>
+    <text x="325" y="245" font-family="Arial, sans-serif" font-size="10" fill="#3730a3">SELECT * FROM users</text>
+    <text x="325" y="260" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">연결됨</text>
+    
+    <!-- 샘플 노드 2 - 필터링 -->
+    <rect x="550" y="200" width="140" height="80" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+    <circle cx="570" cy="220" r="6" fill="#10b981"/>
+    <text x="585" y="225" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#065f46">필터링</text>
+    <text x="555" y="245" font-family="Arial, sans-serif" font-size="10" fill="#047857">age > 25</text>
+    <text x="555" y="260" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">준비됨</text>
+    
+    <!-- 샘플 노드 3 - 테이블 출력 -->
+    <rect x="780" y="200" width="140" height="80" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+    <circle cx="800" cy="220" r="6" fill="#f59e0b"/>
+    <text x="815" y="225" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#92400e">테이블 출력</text>
+    <text x="785" y="245" font-family="Arial, sans-serif" font-size="10" fill="#a16207">100 rows</text>
+    <text x="785" y="260" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">완료</text>
+    
+    <!-- 연결선 -->
+    <line x1="460" y1="240" x2="550" y2="240" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="690" y1="240" x2="780" y2="240" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- 우측 속성 패널 -->
+    <rect x="950" y="60" width="250" height="740" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+    
+    <!-- 속성 패널 헤더 -->
+    <rect x="950" y="60" width="250" height="40" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="970" y="82" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#374151">속성</text>
+    
+    <!-- 선택된 노드 정보 -->
+    <rect x="970" y="120" width="210" height="30" fill="#f3f4f6" stroke="#d1d5db"/>
+    <text x="980" y="140" font-family="Arial, sans-serif" font-size="12" fill="#374151">선택된 노드: MySQL 소스</text>
+    
+    <!-- 노드 이름 설정 -->
+    <text x="980" y="170" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#374151">노드 이름</text>
+    <rect x="970" y="175" width="210" height="30" fill="#ffffff" stroke="#d1d5db"/>
+    <text x="980" y="195" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">MySQL 소스</text>
+    
+    <!-- 데이터베이스 설정 -->
+    <text x="980" y="225" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#374151">데이터베이스 설정</text>
+    <rect x="970" y="230" width="210" height="120" fill="#f9fafb" stroke="#d1d5db"/>
+    
+    <text x="980" y="245" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">호스트: localhost</text>
+    <text x="980" y="260" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">포트: 3306</text>
+    <text x="980" y="275" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">사용자: admin</text>
+    <text x="980" y="290" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">데이터베이스: testdb</text>
+    
+    <rect x="980" y="300" width="80" height="25" rx="3" fill="#3b82f6" stroke="#2563eb"/>
+    <text x="1010" y="315" font-family="Arial, sans-serif" font-size="10" fill="#ffffff">연결 테스트</text>
+    
+    <rect x="1080" y="300" width="60" height="25" rx="3" fill="#10b981" stroke="#059669"/>
+    <text x="1105" y="315" font-family="Arial, sans-serif" font-size="10" fill="#ffffff">저장</text>
+    
+    <!-- 쿼리 에디터 -->
+    <text x="980" y="375" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#374151">SQL 쿼리</text>
+    <rect x="970" y="380" width="210" height="150" fill="#1f2937" stroke="#374151"/>
+    <text x="980" y="400" font-family="Monaco, monospace" font-size="10" fill="#10b981">SELECT</text>
+    <text x="1025" y="400" font-family="Monaco, monospace" font-size="10" fill="#ffffff">*</text>
+    <text x="980" y="415" font-family="Monaco, monospace" font-size="10" fill="#10b981">FROM</text>
+    <text x="1015" y="415" font-family="Monaco, monospace" font-size="10" fill="#ffffff">users</text>
+    <text x="980" y="430" font-family="Monaco, monospace" font-size="10" fill="#10b981">WHERE</text>
+    <text x="1020" y="430" font-family="Monaco, monospace" font-size="10" fill="#ffffff">active = 1;</text>
+    
+    <rect x="980" y="500" width="60" height="25" rx="3" fill="#059669" stroke="#047857"/>
+    <text x="1005" y="515" font-family="Arial, sans-serif" font-size="10" fill="#ffffff">실행</text>
+    
+    <rect x="1050" y="500" width="80" height="25" rx="3" fill="#6b7280" stroke="#4b5563"/>
+    <text x="1080" y="515" font-family="Arial, sans-serif" font-size="10" fill="#ffffff">미리보기</text>
+    
+    <!-- 결과 미리보기 -->
+    <text x="980" y="555" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#374151">결과 미리보기</text>
+    <rect x="970" y="560" width="210" height="100" fill="#ffffff" stroke="#d1d5db"/>
+    <text x="980" y="580" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">100 rows retrieved</text>
+    <text x="980" y="595" font-family="Arial, sans-serif" font-size="9" fill="#9ca3af">id | name | age | email</text>
+    <text x="980" y="610" font-family="Arial, sans-serif" font-size="9" fill="#9ca3af">1  | John | 28  | john@...</text>
+    <text x="980" y="625" font-family="Arial, sans-serif" font-size="9" fill="#9ca3af">2  | Jane | 32  | jane@...</text>
+    <text x="980" y="640" font-family="Arial, sans-serif" font-size="9" fill="#9ca3af">...</text>
+    
+    <!-- 하단 상태바 -->
+    <rect x="250" y="770" width="700" height="30" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="270" y="788" font-family="Arial, sans-serif" font-size="11" fill="#6b7280">실행 상태: 준비됨 | 마지막 실행: 2분 전 | 3개 노드 연결됨</text>
+</svg> 
