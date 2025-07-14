@@ -2,31 +2,116 @@
 
 ## 1. 시스템 아키텍처
 
-### 1.1 전체 아키텍처
+### 1.1 모노레포 구조
+```
+/diagram-system
+  /apps
+    /frontend         # React + Mantine 애플리케이션
+    /backend          # Node.js + Express API 서버
+  /packages
+    /common           # 공통 타입, 인터페이스, 상수
+    /api-client       # 백엔드 API 클라이언트 라이브러리
+    /utils            # 공통 유틸리티 함수
+  package.json        # 루트 워크스페이스 설정
+  turbo.json          # Turbo 빌드 파이프라인 설정
+  tsconfig.json       # 공통 TypeScript 설정
+```
+
+### 1.2 전체 아키텍처
 ```mermaid
 graph TB
-    FE[프론트엔드 - React] --> |API 요청| BE[백엔드 - Node.js/TypeScript]
+    subgraph Monorepo["모노레포 구조"]
+        FE[apps/frontend<br/>React + Mantine] 
+        BE[apps/backend<br/>Node.js + Express]
+        Common[packages/common<br/>공통 타입]
+        ApiClient[packages/api-client<br/>API 클라이언트]
+        Utils[packages/utils<br/>유틸리티]
+    end
+    
+    FE --> |import| Common
+    FE --> |import| ApiClient
+    FE --> |import| Utils
+    BE --> |import| Common
+    BE --> |import| Utils
+    ApiClient --> |import| Common
+    
+    FE --> |API 요청| BE
     BE --> |데이터 조회/처리| DB[(데이터베이스)]
     BE --> |로그 저장| LOG[(처리 이력 DB)]
 ```
 
-### 1.2 기술 스택
-- **프론트엔드**
+### 1.3 기술 스택
+- **모노레포 관리**
+  - pnpm workspaces (패키지 관리)
+  - Turbo (빌드 파이프라인)
+  - TypeScript (전역 타입 시스템)
+
+- **프론트엔드 (apps/frontend)**
   - React.js
   - TypeScript
   - React Flow (다이어그램 라이브러리)
   - Tailwind CSS (스타일링)
   - Redux Toolkit (상태관리)
+  - **Mantine (UI 컴포넌트 라이브러리)**
 
-- **백엔드**
+- **백엔드 (apps/backend)**
   - Node.js
   - TypeScript
   - Express.js
   - TypeORM (데이터베이스 ORM)
 
+- **공통 패키지 (packages/)**
+  - **common**: 공통 타입, 인터페이스, 상수
+  - **api-client**: 타입 안전한 API 클라이언트
+  - **utils**: 공통 유틸리티 함수
+
 - **데이터베이스**
   - MySQL (메인 데이터베이스)
   - Logpresso (로그 데이터)
+
+## 2. 패키지 설계
+
+### 2.1 packages/common
+```typescript
+// 공통 타입 정의
+export interface DatabaseNodeConfig {
+  type: 'mysql' | 'logpresso';
+  connection: DatabaseConnection;
+  query: string;
+}
+
+export interface ProcessingNodeConfig {
+  type: 'filter' | 'aggregate' | 'transform';
+  rules: ProcessingRules;
+}
+
+// API 응답 타입
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  error?: string;
+}
+```
+
+### 2.2 packages/api-client
+```typescript
+// 타입 안전한 API 클라이언트
+import { DatabaseNodeConfig, ApiResponse } from '@diagram/common';
+
+export class DiagramApiClient {
+  async testConnection(config: DatabaseNodeConfig): Promise<ApiResponse<boolean>>;
+  async executeQuery(config: DatabaseNodeConfig): Promise<ApiResponse<QueryResult>>;
+  // ... 기타 API 메서드
+}
+```
+
+### 2.3 packages/utils
+```typescript
+// 공통 유틸리티 함수
+export function validateDatabaseConfig(config: DatabaseNodeConfig): boolean;
+export function formatQueryResult(result: any[]): TableData;
+export function generateNodeId(): string;
+```
 
 ## 2. 데이터베이스 설계
 
@@ -188,26 +273,25 @@ GET /api/executions/:id
 
 ### 5.2 UI 컴포넌트 명세
 
+- **모든 UI 컴포넌트는 Mantine 기반으로 구현**
+- 레이아웃, 버튼, 입력폼, 모달, 탭, 테이블 등은 Mantine 컴포넌트 적극 활용
+- 다이어그램 영역은 React Flow, 그 외 UI는 Mantine
+
 #### 헤더 컴포넌트
-- 애플리케이션 타이틀
-- 저장/불러오기 버튼
-- 실행 버튼
+- Mantine AppShell, Group, Button 등 활용
+- 애플리케이션 타이틀, 저장/불러오기 버튼, 실행 버튼
 
 #### 노드 라이브러리 패널
-- 드래그 가능한 노드 템플릿
-- 노드 타입별 분류
-- 검색 기능
+- Mantine Card, List, Input, ScrollArea 등 활용
+- 드래그 가능한 노드 템플릿, 검색 기능
 
 #### 메인 캔버스
-- React Flow 기반
-- 그리드 배경
-- 줌/팬 기능
-- 미니맵
+- React Flow 기반, Mantine Paper/Box로 감싸기
+- 그리드 배경, 줌/팬 기능, 미니맵
 
 #### 속성 패널
-- 선택된 노드의 설정 UI
-- 동적 폼 렌더링
-- 실시간 유효성 검사
+- Mantine Tabs, Form, Input, Select, Switch 등 활용
+- 선택된 노드의 설정 UI, 동적 폼 렌더링, 실시간 유효성 검사
 
 ## 6. 노드 타입 설계
 
