@@ -1,0 +1,5 @@
+
+> @diagram/frontend@0.1.0 build C:\dev\diagram\apps\frontend
+> DISABLE_ESLINT_PLUGIN=true react-scripts build
+
+'DISABLE_ESLINT_PLUGIN'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는

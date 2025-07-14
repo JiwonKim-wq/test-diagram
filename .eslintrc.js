@@ -2,8 +2,7 @@ module.exports = {
   root: true,
   extends: [
     'eslint:recommended',
-    '@typescript-eslint/recommended',
-    'prettier'
+    '@typescript-eslint/recommended'
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
@@ -25,18 +24,14 @@ module.exports = {
     'prefer-const': 'error',
     'no-var': 'error'
   },
+  ignorePatterns: ['apps/frontend/**/*'],
   overrides: [
     {
-      files: ['apps/frontend/**/*'],
+      files: ['apps/backend/**/*', 'packages/**/*'],
       extends: [
-        'plugin:react/recommended',
-        'plugin:react-hooks/recommended'
-      ],
-      settings: {
-        react: {
-          version: 'detect'
-        }
-      }
+        'eslint:recommended',
+        '@typescript-eslint/recommended'
+      ]
     }
   ]
 }; 

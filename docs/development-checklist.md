@@ -13,57 +13,57 @@
 ### 주 1: 모노레포 환경 설정
 
 #### 모노레포 기본 구조 설정
-- [ ] 루트 package.json 및 pnpm-workspace.yaml 설정
-- [ ] apps/frontend, apps/backend 폴더 생성
-- [ ] packages/common, packages/api-client, packages/utils 폴더 생성
-- [ ] Turbo 설정 (turbo.json)
-- [ ] 공통 TypeScript 설정 (tsconfig.json)
-- [ ] **[커밋]** 모노레포 기본 구조 설정 완료
+- [x] 루트 package.json 및 pnpm-workspace.yaml 설정
+- [x] apps/frontend, apps/backend 폴더 생성
+- [x] packages/common, packages/api-client, packages/utils 폴더 생성
+- [x] Turbo 설정 (turbo.json)
+- [x] 공통 TypeScript 설정 (tsconfig.json)
+- [x] **[커밋]** 모노레포 기본 구조 설정 완료
 
 #### 공통 패키지 초기 설정
-- [ ] packages/common 패키지 설정 및 기본 타입 정의
-- [ ] packages/utils 패키지 설정 및 기본 유틸리티 함수
-- [ ] packages/api-client 패키지 설정 및 기본 구조
-- [ ] 패키지 간 의존성 설정 및 import 테스트
-- [ ] **[커밋]** 공통 패키지 초기 설정 완료
+- [x] packages/common 패키지 설정 및 기본 타입 정의
+- [x] packages/utils 패키지 설정 및 기본 유틸리티 함수
+- [x] packages/api-client 패키지 설정 및 기본 구조
+- [x] 패키지 간 의존성 설정 및 import 테스트
+- [x] **[커밋]** 공통 패키지 초기 설정 완료
 
 ### 주 2: 프론트엔드 및 백엔드 기본 설정
 
 #### 프론트엔드 (apps/frontend) 설정
-- [ ] React TypeScript 프로젝트 생성
-- [ ] Mantine UI 라이브러리 설치 및 설정
+- [x] React TypeScript 프로젝트 생성
+- [x] Mantine UI 라이브러리 설치 및 설정
 - [ ] Tailwind CSS 설정
-- [ ] Redux Toolkit 설정
+- [x] Redux Toolkit 설정
 - [ ] React Flow 라이브러리 설치 및 기본 설정
-- [ ] **[커밋]** 프론트엔드 기본 설정 완료
+- [x] **[커밋]** 프론트엔드 기본 설정 완료
 
 #### 백엔드 (apps/backend) 설정
-- [ ] Node.js TypeScript 프로젝트 생성
-- [ ] Express.js 서버 설정
-- [ ] TypeORM 설정 및 기본 엔티티 정의
-- [ ] CORS, body-parser 등 미들웨어 설정
-- [ ] 기본 라우터 구조 설정
-- [ ] **[커밋]** 백엔드 기본 설정 완료
+- [x] Node.js TypeScript 프로젝트 생성
+- [x] Express.js 서버 설정
+- [x] TypeORM 설정 및 기본 엔티티 정의
+- [x] CORS, body-parser 등 미들웨어 설정
+- [x] 기본 라우터 구조 설정
+- [x] **[커밋]** 백엔드 기본 설정 완료
 
 #### 개발 환경 통합
-- [ ] ESLint, Prettier 모노레포 전체 설정
-- [ ] Jest 테스트 환경 설정 (각 패키지별)
-- [ ] Turbo를 통한 통합 빌드/테스트 스크립트 설정
-- [ ] **[커밋]** 개발 환경 통합 설정 완료
+- [x] ESLint, Prettier 모노레포 전체 설정
+- [x] Jest 테스트 환경 설정 (각 패키지별)
+- [x] Turbo를 통한 통합 빌드/테스트 스크립트 설정
+- [x] **[커밋]** 개발 환경 통합 설정 완료
 
 ### 주 3: 기본 UI 구성
 
 #### 기본 레이아웃 구현
-- [ ] Mantine AppShell을 활용한 기본 레이아웃
-- [ ] 헤더, 사이드바, 캔버스, 속성패널 컴포넌트 구현
-- [ ] React Flow 캔버스 기본 구조 구현
-- [ ] **[커밋]** 기본 UI 레이아웃 구현
+- [x] Mantine AppShell을 활용한 기본 레이아웃
+- [x] 헤더, 사이드바, 캔버스, 속성패널 컴포넌트 구현
+- [x] React Flow 캔버스 기본 구조 구현
+- [x] **[커밋]** 기본 UI 레이아웃 구현
 
 #### 공통 컴포넌트 및 훅
-- [ ] 공통 UI 컴포넌트 라이브러리 구축
-- [ ] 상태 관리 스토어 기본 구조 설정
-- [ ] API 클라이언트 기본 구조 구현
-- [ ] **[커밋]** 공통 컴포넌트 및 상태 관리 완료
+- [x] 공통 UI 컴포넌트 라이브러리 구축
+- [x] 상태 관리 스토어 기본 구조 설정
+- [x] API 클라이언트 기본 구조 구현
+- [x] **[커밋]** 공통 컴포넌트 및 상태 관리 완료
 
 ### 주 4: MySQL 연동 (TDD 적용)
 

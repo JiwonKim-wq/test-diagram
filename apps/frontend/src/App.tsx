@@ -1,6 +1,9 @@
 import React from 'react';
 import { AppShell, Burger, Group, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { DiagramCanvas } from './components/DiagramCanvas';
+import { NodeLibrary } from './components/NodeLibrary';
+import { PropertyPanel } from './components/PropertyPanel';
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
@@ -35,18 +38,15 @@ function App() {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        <Text>노드 라이브러리</Text>
-        {/* TODO: 노드 라이브러리 컴포넌트 추가 */}
+        <NodeLibrary />
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <Text>다이어그램 캔버스</Text>
-        {/* TODO: React Flow 캔버스 추가 */}
+        <DiagramCanvas />
       </AppShell.Main>
 
       <AppShell.Aside p="md">
-        <Text>속성 패널</Text>
-        {/* TODO: 속성 패널 컴포넌트 추가 */}
+        <PropertyPanel />
       </AppShell.Aside>
     </AppShell>
   );
