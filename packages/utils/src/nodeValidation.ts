@@ -15,7 +15,7 @@ import {
   FilterRule,
   FilterOperator,
   AggregationRule,
-  TransformationRule,
+  TransformRule,
   NodeConnection,
   Diagram
 } from '@diagram/common';
@@ -362,7 +362,7 @@ function validateTransformNode(data: TransformNodeData, errors: ValidationError[
 }
 
 // 변환 규칙 검증
-function validateTransformationRule(rule: TransformationRule, fieldPrefix: string, errors: ValidationError[], warnings: ValidationWarning[]): void {
+function validateTransformationRule(rule: TransformRule, fieldPrefix: string, errors: ValidationError[], warnings: ValidationWarning[]): void {
   if (!rule.sourceField || rule.sourceField.trim() === '') {
     errors.push({
       field: `${fieldPrefix}.sourceField`,
@@ -381,10 +381,10 @@ function validateTransformationRule(rule: TransformationRule, fieldPrefix: strin
     });
   }
 
-  if (!rule.function) {
+  if (!rule.operation) {
     errors.push({
-      field: `${fieldPrefix}.function`,
-      message: '변환 함수는 필수입니다.',
+      field: `${fieldPrefix}.operation`,
+      message: '변환 연산은 필수입니다.',
       code: 'REQUIRED_FIELD',
       severity: 'error'
     });

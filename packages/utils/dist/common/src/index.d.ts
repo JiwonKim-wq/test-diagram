@@ -1,5 +1,6 @@
 export * from './types/database';
 export * from './types/nodes';
+export * from './types/dataProcessing';
 export interface DatabaseConnection {
     id: string;
     name: string;

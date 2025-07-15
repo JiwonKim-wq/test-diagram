@@ -23,6 +23,19 @@ export class DiagramApiClient {
             return Promise.reject(error);
         });
     }
+    // 일반적인 HTTP 메서드들
+    async get(url, config) {
+        return this.client.get(url, config);
+    }
+    async post(url, data, config) {
+        return this.client.post(url, data, config);
+    }
+    async put(url, data, config) {
+        return this.client.put(url, data, config);
+    }
+    async delete(url, config) {
+        return this.client.delete(url, config);
+    }
     // 데이터베이스 연결 테스트
     async testConnection(config) {
         try {

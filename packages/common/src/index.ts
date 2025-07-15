@@ -4,6 +4,9 @@ export * from './types/database';
 // 노드 타입 export
 export * from './types/nodes';
 
+// 데이터 처리 타입 export
+export * from './types/dataProcessing';
+
 // 기본 데이터베이스 연결 타입 (호환성을 위해 유지)
 export interface DatabaseConnection {
   id: string;

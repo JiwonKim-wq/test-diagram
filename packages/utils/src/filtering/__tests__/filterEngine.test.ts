@@ -1,6 +1,6 @@
 import { FilterEngine } from '../filterEngine';
 
-// 테스트를 위한 타입 정의
+// 임시로 로컬 타입 정의 사용 (Jest 설정 해결 후 @diagram/common으로 변경)
 interface FilterRule {
   id: string;
   field: string;
@@ -28,6 +28,14 @@ enum FilterOperator {
   IS_NOT_NULL = 'isNotNull',
   REGEX = 'regex',
   BETWEEN = 'between'
+}
+
+interface FilterGroup {
+  id: string;
+  operator: 'AND' | 'OR';
+  rules: FilterRule[];
+  groups?: FilterGroup[];
+  enabled?: boolean;
 }
 
 describe('FilterEngine', () => {
@@ -331,6 +339,157 @@ describe('FilterEngine', () => {
       expect(() => {
         filterEngine.applyFilter(sampleData, filter);
       }).toThrow('BETWEEN operator requires an array of two values');
+    });
+  });
+
+  describe('FilterGroup (중첩된 필터 조건)', () => {
+    it('FilterGroup으로 중첩된 AND/OR 조건 처리', () => {
+      // (active = true AND age > 25) OR (city = 'Boston')
+      const filterGroup: FilterGroup = {
+        id: 'group1',
+        operator: 'OR',
+        rules: [
+          {
+            id: '3',
+            field: 'city',
+            operator: FilterOperator.EQUALS,
+            value: 'Boston',
+            dataType: 'string',
+            enabled: true
+          }
+        ],
+        groups: [
+          {
+            id: 'subgroup1',
+            operator: 'AND',
+            rules: [
+              {
+                id: '1',
+                field: 'active',
+                operator: FilterOperator.EQUALS,
+                value: true,
+                dataType: 'boolean',
+                enabled: true
+              },
+              {
+                id: '2',
+                field: 'age',
+                operator: FilterOperator.GREATER_THAN,
+                value: 25,
+                dataType: 'number',
+                enabled: true
+              }
+            ],
+            enabled: true
+          }
+        ],
+        enabled: true
+      };
+
+      const result = filterEngine.applyFilterGroup(sampleData, filterGroup);
+      expect(result).toHaveLength(3); // Bob, Alice, Charlie
+    });
+
+    it('복잡한 중첩 FilterGroup 처리', () => {
+      // ((active = true AND age > 30) OR (salary > 60000)) AND city != 'Boston'
+      const filterGroup: FilterGroup = {
+        id: 'complex',
+        operator: 'AND',
+        rules: [
+          {
+            id: '4',
+            field: 'city',
+            operator: FilterOperator.NOT_EQUALS,
+            value: 'Boston',
+            dataType: 'string',
+            enabled: true
+          }
+        ],
+        groups: [
+          {
+            id: 'subgroup',
+            operator: 'OR',
+            rules: [
+              {
+                id: '3',
+                field: 'salary',
+                operator: FilterOperator.GREATER_THAN,
+                value: 60000,
+                dataType: 'number',
+                enabled: true
+              }
+            ],
+            groups: [
+              {
+                id: 'subsubgroup',
+                operator: 'AND',
+                rules: [
+                  {
+                    id: '1',
+                    field: 'active',
+                    operator: FilterOperator.EQUALS,
+                    value: true,
+                    dataType: 'boolean',
+                    enabled: true
+                  },
+                  {
+                    id: '2',
+                    field: 'age',
+                    operator: FilterOperator.GREATER_THAN,
+                    value: 30,
+                    dataType: 'number',
+                    enabled: true
+                  }
+                ],
+                enabled: true
+              }
+            ],
+            enabled: true
+          }
+        ],
+        enabled: true
+      };
+
+      const result = filterEngine.applyFilterGroup(sampleData, filterGroup);
+      expect(result).toHaveLength(1); // Bob (active=true, age=35>30, city≠Boston)
+    });
+
+    it('비활성화된 FilterGroup은 무시', () => {
+      const filterGroup: FilterGroup = {
+        id: 'disabled',
+        operator: 'AND',
+        rules: [
+          {
+            id: '1',
+            field: 'active',
+            operator: FilterOperator.EQUALS,
+            value: true,
+            dataType: 'boolean',
+            enabled: true
+          }
+        ],
+        groups: [
+          {
+            id: 'disabled-group',
+            operator: 'AND',
+            rules: [
+              {
+                id: '2',
+                field: 'age',
+                operator: FilterOperator.GREATER_THAN,
+                value: 100,
+                dataType: 'number',
+                enabled: true
+              }
+            ],
+            enabled: false // 비활성화
+          }
+        ],
+        enabled: true
+      };
+
+      const result = filterEngine.applyFilterGroup(sampleData, filterGroup);
+      expect(result).toHaveLength(3); // active=true인 모든 항목 (비활성화된 그룹 무시)
     });
   });
 }); 

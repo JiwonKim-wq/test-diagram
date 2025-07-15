@@ -8,5 +8,18 @@ module.exports = {
     '!src/**/*.d.ts'
   ],
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov']
+  coverageReporters: ['text', 'lcov'],
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: {
+        module: 'commonjs'
+      }
+    }]
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!@diagram/)'
+  ],
+  moduleNameMapper: {
+    '^@diagram/common$': '<rootDir>/../common/src'
+  }
 }; 

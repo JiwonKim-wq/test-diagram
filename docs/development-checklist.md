@@ -124,18 +124,18 @@
 ### 주 7-8: 데이터 처리 엔진 (TDD 적용)
 
 #### 필터링 엔진 (TDD)
-- [ ] packages/common에 FilterRule 타입 정의
-- [ ] 필터링 로직 테스트 작성
-- [ ] 다양한 필터 타입 구현 (=, >, <, LIKE, IN 등)
-- [ ] 복합 필터 조건 처리 구현
-- [ ] **[커밋]** 필터링 엔진 구현 완료
+- [x] packages/common에 FilterRule 타입 정의
+- [x] 필터링 로직 테스트 작성
+- [x] 다양한 필터 타입 구현 (=, >, <, LIKE, IN 등)
+- [x] 복합 필터 조건 처리 구현 (FilterGroup 포함)
+- [x] **[커밋]** 필터링 엔진 구현 완료
 
 #### 집계 및 변환 엔진 (TDD)
-- [ ] AggregateRule, TransformRule 타입 정의
-- [ ] 집계/변환 로직 테스트 작성
-- [ ] 기본 집계 함수 구현 (COUNT, SUM, AVG, MIN, MAX)
-- [ ] 데이터 변환 기능 구현
-- [ ] **[커밋]** 데이터 처리 엔진 구현 완료
+- [x] AggregateRule, TransformRule 타입 정의
+- [x] 집계/변환 로직 테스트 작성
+- [x] 기본 집계 함수 구현 (COUNT, SUM, AVG, MIN, MAX)
+- [x] 데이터 변환 기능 구현
+- [x] **[커밋]** 데이터 처리 엔진 구현 완료
 
 #### 처리 노드 UI 구현
 - [ ] Mantine 기반 필터링 설정 UI

@@ -4,13 +4,16 @@ export const generateId = () => {
 };
 // 노드 검증 유틸리티 export
 export * from './nodeValidation';
+export * from './filtering/filterEngine';
+export * from './aggregation/aggregateEngine';
+export * from './transformation/transformEngine';
 // 에러 생성 헬퍼
-export const createError = (code, message, details) => {
-    return {
-        code,
-        message,
-        details
-    };
+export const createError = (message, code) => {
+    const error = new Error(message);
+    if (code) {
+        error.code = code;
+    }
+    return error;
 };
 // 딥 클론 유틸리티
 export const deepClone = (obj) => {

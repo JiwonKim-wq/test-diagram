@@ -1,5 +1,25 @@
 
 > @diagram/frontend@0.1.0 build C:\dev\diagram\apps\frontend
-> DISABLE_ESLINT_PLUGIN=true react-scripts build
+> react-scripts build
 
-'DISABLE_ESLINT_PLUGIN'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는
+Creating an optimized production build...
+Compiled successfully.
+
+File sizes after gzip:
+
+  171.34 kB (+273 B)  build\static\js\main.10be40ce.js
+  32.58 kB            build\static\css\main.7d133584.css
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+

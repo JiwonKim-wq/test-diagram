@@ -48,6 +48,21 @@ export interface DatabaseNodeData extends NodeData {
     autoRefresh?: boolean;
     refreshInterval?: number;
 }
+export interface DatabaseNodeConfig {
+    connectionId?: string;
+    connectionConfig?: {
+        host: string;
+        port: number;
+        database: string;
+        username: string;
+        password: string;
+    };
+    query?: string;
+    queryType?: 'select' | 'insert' | 'update' | 'delete' | 'custom';
+    parameters?: Record<string, any>;
+    limit?: number;
+    offset?: number;
+}
 export interface FilterNodeData extends NodeData {
     filters: FilterRule[];
     operator: 'AND' | 'OR';

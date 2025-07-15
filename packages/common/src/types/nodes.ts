@@ -1,3 +1,15 @@
+
+
+// 데이터 처리 관련 타입 import
+import { 
+  FilterRule, 
+  FilterOperator, 
+  AggregationRule, 
+  AggregateFunction, 
+  OrderByRule,
+  TransformRule
+} from './dataProcessing';
+
 // 노드 기본 인터페이스
 export interface BaseNode {
   id: string;
@@ -76,36 +88,7 @@ export interface FilterNodeData extends NodeData {
   operator: 'AND' | 'OR';
 }
 
-// 필터 규칙
-export interface FilterRule {
-  id: string;
-  field: string;
-  operator: FilterOperator;
-  value: any;
-  dataType: 'string' | 'number' | 'boolean' | 'date' | 'array';
-  caseSensitive?: boolean;
-  enabled?: boolean;
-}
 
-// 필터 연산자
-export enum FilterOperator {
-  EQUALS = 'equals',
-  NOT_EQUALS = 'notEquals',
-  GREATER_THAN = 'greaterThan',
-  GREATER_THAN_OR_EQUAL = 'greaterThanOrEqual',
-  LESS_THAN = 'lessThan',
-  LESS_THAN_OR_EQUAL = 'lessThanOrEqual',
-  CONTAINS = 'contains',
-  NOT_CONTAINS = 'notContains',
-  STARTS_WITH = 'startsWith',
-  ENDS_WITH = 'endsWith',
-  IN = 'in',
-  NOT_IN = 'notIn',
-  IS_NULL = 'isNull',
-  IS_NOT_NULL = 'isNotNull',
-  REGEX = 'regex',
-  BETWEEN = 'between'
-}
 
 // 집계 노드 데이터
 export interface AggregateNodeData extends NodeData {
@@ -115,66 +98,14 @@ export interface AggregateNodeData extends NodeData {
   orderBy?: OrderByRule[];
 }
 
-// 집계 규칙
-export interface AggregationRule {
-  id: string;
-  field: string;
-  function: AggregateFunction;
-  alias?: string;
-  distinct?: boolean;
-  enabled?: boolean;
-}
 
-// 집계 함수
-export enum AggregateFunction {
-  COUNT = 'count',
-  SUM = 'sum',
-  AVG = 'avg',
-  MIN = 'min',
-  MAX = 'max',
-  FIRST = 'first',
-  LAST = 'last',
-  STDDEV = 'stddev',
-  VARIANCE = 'variance'
-}
-
-// 정렬 규칙
-export interface OrderByRule {
-  field: string;
-  direction: 'ASC' | 'DESC';
-}
 
 // 변환 노드 데이터
 export interface TransformNodeData extends NodeData {
-  transformations: TransformationRule[];
+  transformations: TransformRule[];
 }
 
-// 변환 규칙
-export interface TransformationRule {
-  id: string;
-  sourceField: string;
-  targetField: string;
-  function: TransformFunction;
-  parameters?: Record<string, any>;
-  enabled?: boolean;
-}
 
-// 변환 함수
-export enum TransformFunction {
-  RENAME = 'rename',
-  CAST = 'cast',
-  SUBSTRING = 'substring',
-  REPLACE = 'replace',
-  UPPER = 'upper',
-  LOWER = 'lower',
-  TRIM = 'trim',
-  CONCAT = 'concat',
-  SPLIT = 'split',
-  DATE_FORMAT = 'dateFormat',
-  MATH_OPERATION = 'mathOperation',
-  CONDITIONAL = 'conditional',
-  CUSTOM = 'custom'
-}
 
 // 조인 노드 데이터
 export interface JoinNodeData extends NodeData {

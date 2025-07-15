@@ -1,4 +1,4 @@
-// 로컬 타입 정의
+// 임시로 로컬 타입 정의 사용 (Jest 설정 해결 후 @diagram/common으로 변경)
 interface FilterRule {
   id: string;
   field: string;
@@ -26,6 +26,14 @@ enum FilterOperator {
   IS_NOT_NULL = 'isNotNull',
   REGEX = 'regex',
   BETWEEN = 'between'
+}
+
+interface FilterGroup {
+  id: string;
+  operator: 'AND' | 'OR';
+  rules: FilterRule[];
+  groups?: FilterGroup[];
+  enabled?: boolean;
 }
 
 export class FilterEngine {
@@ -254,5 +262,48 @@ export class FilterEngine {
     if (typeof value !== 'string') return false;
     const date = new Date(value);
     return !isNaN(date.getTime());
+  }
+
+  /**
+   * FilterGroup을 데이터에 적용합니다.
+   * 중첩된 규칙과 그룹을 처리할 수 있습니다.
+   */
+  applyFilterGroup(data: any[], filterGroup: FilterGroup): any[] {
+    if (!filterGroup.enabled) {
+      return data;
+    }
+
+    return data.filter(item => this.evaluateFilterGroup(item, filterGroup));
+  }
+
+  /**
+   * 개별 데이터 아이템에 대해 FilterGroup을 평가합니다.
+   */
+  private evaluateFilterGroup(item: any, filterGroup: FilterGroup): boolean {
+    if (!filterGroup.enabled) {
+      return true;
+    }
+
+    // 활성화된 규칙들 처리
+    const enabledRules = filterGroup.rules?.filter(rule => rule.enabled) || [];
+    const ruleResults = enabledRules.map(rule => this.evaluateFilter(item, rule));
+
+    // 활성화된 하위 그룹들 처리
+    const enabledGroups = filterGroup.groups?.filter(group => group.enabled) || [];
+    const groupResults = enabledGroups.map(group => this.evaluateFilterGroup(item, group));
+
+    // 모든 결과 합치기
+    const allResults = [...ruleResults, ...groupResults];
+
+    if (allResults.length === 0) {
+      return true; // 활성화된 조건이 없으면 통과
+    }
+
+    // 연산자에 따라 결과 계산
+    if (filterGroup.operator === 'AND') {
+      return allResults.every(result => result);
+    } else {
+      return allResults.some(result => result);
+    }
   }
 } 

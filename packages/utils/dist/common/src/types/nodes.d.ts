@@ -1,3 +1,4 @@
+import { FilterRule, FilterOperator, AggregationRule, OrderByRule, TransformRule } from './dataProcessing';
 export interface BaseNode {
     id: string;
     type: NodeType;
@@ -48,36 +49,24 @@ export interface DatabaseNodeData extends NodeData {
     autoRefresh?: boolean;
     refreshInterval?: number;
 }
+export interface DatabaseNodeConfig {
+    connectionId?: string;
+    connectionConfig?: {
+        host: string;
+        port: number;
+        database: string;
+        username: string;
+        password: string;
+    };
+    query?: string;
+    queryType?: 'select' | 'insert' | 'update' | 'delete' | 'custom';
+    parameters?: Record<string, any>;
+    limit?: number;
+    offset?: number;
+}
 export interface FilterNodeData extends NodeData {
     filters: FilterRule[];
     operator: 'AND' | 'OR';
-}
-export interface FilterRule {
-    id: string;
-    field: string;
-    operator: FilterOperator;
-    value: any;
-    dataType: 'string' | 'number' | 'boolean' | 'date' | 'array';
-    caseSensitive?: boolean;
-    enabled?: boolean;
-}
-export declare enum FilterOperator {
-    EQUALS = "equals",
-    NOT_EQUALS = "notEquals",
-    GREATER_THAN = "greaterThan",
-    GREATER_THAN_OR_EQUAL = "greaterThanOrEqual",
-    LESS_THAN = "lessThan",
-    LESS_THAN_OR_EQUAL = "lessThanOrEqual",
-    CONTAINS = "contains",
-    NOT_CONTAINS = "notContains",
-    STARTS_WITH = "startsWith",
-    ENDS_WITH = "endsWith",
-    IN = "in",
-    NOT_IN = "notIn",
-    IS_NULL = "isNull",
-    IS_NOT_NULL = "isNotNull",
-    REGEX = "regex",
-    BETWEEN = "between"
 }
 export interface AggregateNodeData extends NodeData {
     groupBy: string[];
@@ -85,54 +74,8 @@ export interface AggregateNodeData extends NodeData {
     having?: FilterRule[];
     orderBy?: OrderByRule[];
 }
-export interface AggregationRule {
-    id: string;
-    field: string;
-    function: AggregateFunction;
-    alias?: string;
-    distinct?: boolean;
-    enabled?: boolean;
-}
-export declare enum AggregateFunction {
-    COUNT = "count",
-    SUM = "sum",
-    AVG = "avg",
-    MIN = "min",
-    MAX = "max",
-    FIRST = "first",
-    LAST = "last",
-    STDDEV = "stddev",
-    VARIANCE = "variance"
-}
-export interface OrderByRule {
-    field: string;
-    direction: 'ASC' | 'DESC';
-}
 export interface TransformNodeData extends NodeData {
-    transformations: TransformationRule[];
-}
-export interface TransformationRule {
-    id: string;
-    sourceField: string;
-    targetField: string;
-    function: TransformFunction;
-    parameters?: Record<string, any>;
-    enabled?: boolean;
-}
-export declare enum TransformFunction {
-    RENAME = "rename",
-    CAST = "cast",
-    SUBSTRING = "substring",
-    REPLACE = "replace",
-    UPPER = "upper",
-    LOWER = "lower",
-    TRIM = "trim",
-    CONCAT = "concat",
-    SPLIT = "split",
-    DATE_FORMAT = "dateFormat",
-    MATH_OPERATION = "mathOperation",
-    CONDITIONAL = "conditional",
-    CUSTOM = "custom"
+    transformations: TransformRule[];
 }
 export interface JoinNodeData extends NodeData {
     joinType: JoinType;

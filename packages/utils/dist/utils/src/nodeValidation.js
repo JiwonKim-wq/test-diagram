@@ -333,10 +333,10 @@ function validateTransformationRule(rule, fieldPrefix, errors, warnings) {
             severity: 'error'
         });
     }
-    if (!rule.function) {
+    if (!rule.operation) {
         errors.push({
-            field: `${fieldPrefix}.function`,
-            message: '변환 함수는 필수입니다.',
+            field: `${fieldPrefix}.operation`,
+            message: '변환 연산은 필수입니다.',
             code: 'REQUIRED_FIELD',
             severity: 'error'
         });
