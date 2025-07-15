@@ -10,5 +10,17 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts']
+  moduleNameMapper: {
+    '^@diagram/common$': '<rootDir>/../../packages/common/src/index.ts',
+    '^@diagram/utils$': '<rootDir>/../../packages/utils/src/index.ts'
+  },
+  transform: {
+    '^.+\\.ts$': 'ts-jest'
+  },
+  extensionsToTreatAsEsm: ['.ts'],
+  globals: {
+    'ts-jest': {
+      useESM: true
+    }
+  }
 }; 

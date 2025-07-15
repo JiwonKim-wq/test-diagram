@@ -1,3 +1,4 @@
+export * from './types/database';
 export interface DatabaseConnection {
     id: string;
     name: string;
@@ -18,33 +19,45 @@ export interface BaseNode {
         x: number;
         y: number;
     };
-    data: Record<string, any>;
-    createdAt: Date;
-    updatedAt: Date;
+    data: any;
 }
-export interface Diagram {
-    id: string;
-    name: string;
-    description?: string;
-    nodes: BaseNode[];
-    edges: DiagramEdge[];
-    createdAt: Date;
-    updatedAt: Date;
+export interface DatabaseNodeConfig {
+    type: 'mysql' | 'logpresso';
+    connection: DatabaseConnection;
+    query: string;
 }
-export interface DiagramEdge {
-    id: string;
-    source: string;
-    target: string;
-    sourceHandle?: string;
-    targetHandle?: string;
-    type?: string;
-    data?: Record<string, any>;
+export interface ProcessingNodeConfig {
+    type: 'filter' | 'aggregate' | 'transform';
+    rules: ProcessingRules;
 }
-export interface ApiResponse<T = any> {
+export interface ProcessingRules {
+    filter?: FilterRule[];
+    aggregate?: AggregateRule[];
+    transform?: TransformRule[];
+}
+export interface FilterRule {
+    column: string;
+    operator: 'eq' | 'ne' | 'gt' | 'lt' | 'gte' | 'lte' | 'like' | 'in' | 'not_in';
+    value: any;
+    dataType: 'string' | 'number' | 'boolean' | 'date';
+}
+export interface AggregateRule {
+    column: string;
+    function: 'count' | 'sum' | 'avg' | 'min' | 'max' | 'distinct_count';
+    groupBy?: string[];
+    alias?: string;
+}
+export interface TransformRule {
+    column: string;
+    type: 'rename' | 'cast' | 'format' | 'calculate';
+    config: any;
+    alias?: string;
+}
+export interface ApiResponse<T> {
     success: boolean;
-    data?: T;
-    message?: string;
+    data: T;
     error?: string;
+    timestamp?: Date;
 }
 export interface AppError {
     code: string;

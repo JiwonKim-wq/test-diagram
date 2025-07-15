@@ -68,28 +68,28 @@
 ### 주 4: MySQL 연동 (TDD 적용)
 
 #### 데이터베이스 연결 모듈 (TDD)
-- [ ] packages/common에 DB 관련 타입 정의
-- [ ] 데이터베이스 연결 테스트 작성
-- [ ] DatabaseConnector 인터페이스 정의
-- [ ] MySQLConnector 클래스 구현
-- [ ] 연결 풀 관리 기능 구현
-- [ ] 연결 상태 체크 기능 구현
-- [ ] **[커밋]** MySQL 연결 모듈 구현 완료
+- [x] packages/common에 DB 관련 타입 정의
+- [x] 데이터베이스 연결 테스트 작성
+- [x] DatabaseConnector 인터페이스 정의
+- [x] MySQLConnector 클래스 구현
+- [x] 연결 풀 관리 기능 구현
+- [x] 연결 상태 체크 기능 구현
+- [x] **[커밋]** MySQL 연결 모듈 구현 완료
 
 #### 쿼리 실행 엔진 (TDD)
-- [ ] 쿼리 실행 테스트 작성
-- [ ] SQL 인젝션 방지 로직 테스트 작성
-- [ ] QueryExecutor 클래스 구현
-- [ ] 쿼리 결과 파싱 기능 구현
-- [ ] 에러 처리 로직 구현
-- [ ] **[커밋]** 쿼리 실행 엔진 구현 완료
+- [x] 쿼리 실행 테스트 작성
+- [x] SQL 인젝션 방지 로직 테스트 작성
+- [x] QueryExecutor 클래스 구현 (MySQLConnector에 통합)
+- [x] 쿼리 결과 파싱 기능 구현
+- [x] 에러 처리 로직 구현
+- [x] **[커밋]** 쿼리 실행 엔진 구현 완료
 
 #### API 및 프론트엔드 연동
-- [ ] packages/api-client에 DB API 클라이언트 구현
-- [ ] 데이터베이스 연결 테스트 API 구현
-- [ ] 쿼리 실행 API 구현
-- [ ] 프론트엔드 DB 연동 컴포넌트 구현 (Mantine 기반)
-- [ ] **[커밋]** DB 연동 기능 완료
+- [x] packages/api-client에 DB API 클라이언트 구현
+- [x] 데이터베이스 연결 테스트 API 구현
+- [x] 쿼리 실행 API 구현
+- [x] 프론트엔드 DB 연동 컴포넌트 구현 (Mantine 기반)
+- [x] **[커밋]** DB 연동 기능 완료
 
 ---
 
