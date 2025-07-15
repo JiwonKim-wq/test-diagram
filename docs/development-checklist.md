@@ -114,6 +114,8 @@
 - [x] 노드별 속성 설정 UI 구현
 - [x] 드래그 앤 드롭과 노드 선택 시스템 통합
 - [x] 모든 노드 타입별 속성 UI 구현 (Database, Filter, Aggregate, Transform, Join, Python, Output)
+- [x] 실시간 유효성 검사 기능 구현 (useNodeValidation Hook)
+- [x] 검증 결과 시각적 피드백 (오류/경고 Alert 표시)
 - [x] **[커밋]** 속성 패널 시스템 구현 완료
 
 ### 주 7-8: 데이터 처리 엔진 (TDD 적용)

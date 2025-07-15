@@ -1,5 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BaseNode, NodeValidationResult, NodeType } from '@diagram/common';
+import { 
+  BaseNode, 
+  NodeValidationResult, 
+  NodeType, 
+  DatabaseNodeData, 
+  LogpressoNodeData, 
+  FilterNodeData, 
+  PythonNodeData 
+} from '@diagram/common';
+
+// 타입 가드 함수들
+const isDatabaseNode = (node: BaseNode): node is BaseNode & { data: DatabaseNodeData } => {
+  return node.type === NodeType.DATABASE;
+};
+
+const isLogpressoNode = (node: BaseNode): node is BaseNode & { data: LogpressoNodeData } => {
+  return node.type === NodeType.LOGPRESSO;
+};
+
+const isFilterNode = (node: BaseNode): node is BaseNode & { data: FilterNodeData } => {
+  return node.type === NodeType.FILTER;
+};
+
+const isPythonNode = (node: BaseNode): node is BaseNode & { data: PythonNodeData } => {
+  return node.type === NodeType.PYTHON;
+};
 
 // 간단한 노드 검증 함수
 const validateNodeData = (node: BaseNode): NodeValidationResult => {
@@ -19,52 +44,70 @@ const validateNodeData = (node: BaseNode): NodeValidationResult => {
   // 노드 타입별 검증
   switch (node.type) {
     case NodeType.DATABASE:
+      if (isDatabaseNode(node)) {
+        if (!node.data?.connectionConfig?.host) {
+          errors.push({
+            field: 'host',
+            message: '호스트 주소가 필요합니다.',
+            code: 'REQUIRED_FIELD',
+            severity: 'error'
+          });
+        }
+        if (!node.data?.connectionConfig?.database) {
+          errors.push({
+            field: 'database',
+            message: '데이터베이스명이 필요합니다.',
+            code: 'REQUIRED_FIELD',
+            severity: 'error'
+          });
+        }
+        if (!node.data?.query) {
+          errors.push({
+            field: 'query',
+            message: '쿼리가 필요합니다.',
+            code: 'REQUIRED_FIELD',
+            severity: 'error'
+          });
+        }
+      }
+      break;
+
     case NodeType.LOGPRESSO:
-      if (!node.data?.connectionConfig?.host) {
-        errors.push({
-          field: 'host',
-          message: '호스트 주소가 필요합니다.',
-          code: 'REQUIRED_FIELD',
-          severity: 'error'
-        });
-      }
-      if (!node.data?.connectionConfig?.database && node.type === NodeType.DATABASE) {
-        errors.push({
-          field: 'database',
-          message: '데이터베이스명이 필요합니다.',
-          code: 'REQUIRED_FIELD',
-          severity: 'error'
-        });
-      }
-      if (!node.data?.query) {
-        errors.push({
-          field: 'query',
-          message: '쿼리가 필요합니다.',
-          code: 'REQUIRED_FIELD',
-          severity: 'error'
-        });
+      if (isLogpressoNode(node)) {
+        if (!node.data?.query) {
+          errors.push({
+            field: 'query',
+            message: '쿼리가 필요합니다.',
+            code: 'REQUIRED_FIELD',
+            severity: 'error'
+          });
+        }
       }
       break;
 
     case NodeType.FILTER:
-      if (!node.data?.filters || node.data.filters.length === 0) {
-        warnings.push({
-          field: 'filters',
-          message: '필터 조건이 없습니다.',
-          code: 'EMPTY_FILTERS',
-          severity: 'warning'
-        });
+      if (isFilterNode(node)) {
+        if (!node.data?.filters || node.data.filters.length === 0) {
+          warnings.push({
+            field: 'filters',
+            message: '필터 조건이 없습니다.',
+            code: 'EMPTY_FILTERS',
+            severity: 'warning'
+          });
+        }
       }
       break;
 
     case NodeType.PYTHON:
-      if (!node.data?.code || node.data.code.trim() === '') {
-        errors.push({
-          field: 'code',
-          message: 'Python 코드가 필요합니다.',
-          code: 'REQUIRED_FIELD',
-          severity: 'error'
-        });
+      if (isPythonNode(node)) {
+        if (!node.data?.code || node.data.code.trim() === '') {
+          errors.push({
+            field: 'code',
+            message: 'Python 코드가 필요합니다.',
+            code: 'REQUIRED_FIELD',
+            severity: 'error'
+          });
+        }
       }
       break;
   }

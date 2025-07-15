@@ -4,3 +4,4 @@
 - 커밋 전에 docs/development-checklist.md에 진행상황을 업데이트 한다.
 - 설계 변경시에는 docs/diagram-system-design.md 를 업데이트 한다.
 - 작업 진행 후 페이지 커밋 전에 페이지 확인 후 커밋 할 것 페이지에 에러가 있다면 해결 후 커밋 할 것
+- 터미널 작업 할 때 무조건 powershell7 사용할 것 그게 아니면 git bash 사용할 것
