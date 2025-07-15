@@ -3,17 +3,8 @@ export const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// 노드 유효성 검증
-export const validateNode = (node: any): boolean => {
-  return !!(
-    node.id &&
-    node.type &&
-    node.position &&
-    typeof node.position.x === 'number' &&
-    typeof node.position.y === 'number' &&
-    node.data
-  );
-};
+// 노드 검증 유틸리티 export
+export * from './nodeValidation';
 
 // 에러 생성 헬퍼
 export const createError = (code: string, message: string, details?: Record<string, any>) => {

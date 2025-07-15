@@ -98,16 +98,16 @@
 ### 주 5-6: 노드 시스템 구현
 
 #### 노드 타입 정의 및 구조 (packages/common)
-- [ ] 노드 타입 인터페이스 정의 (common 패키지)
-- [ ] DatabaseNode, ProcessingNode, OutputNode 타입 정의
-- [ ] 노드 검증 유틸리티 함수 구현 (packages/utils)
-- [ ] **[커밋]** 노드 타입 시스템 구현 완료
+- [x] 노드 타입 인터페이스 정의 (common 패키지)
+- [x] DatabaseNode, ProcessingNode, OutputNode 타입 정의
+- [x] 노드 검증 유틸리티 함수 구현 (packages/utils)
+- [x] **[커밋]** 노드 타입 시스템 구현 완료
 
 #### React Flow 노드 시스템
-- [ ] Mantine 기반 노드 컴포넌트 구현
-- [ ] 드래그 앤 드롭 시스템 구현
-- [ ] 노드 라이브러리 패널 구현 (Mantine Card, List 활용)
-- [ ] **[커밋]** 노드 시스템 UI 구현 완료
+- [x] Mantine 기반 노드 컴포넌트 구현
+- [x] 드래그 앤 드롭 시스템 구현
+- [x] 노드 라이브러리 패널 구현 (Mantine Card, List 활용)
+- [x] **[커밋]** 노드 시스템 UI 구현 완료
 
 #### 속성 패널 시스템
 - [ ] Mantine Tabs, Form 기반 동적 폼 시스템

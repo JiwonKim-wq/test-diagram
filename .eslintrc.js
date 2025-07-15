@@ -30,7 +30,7 @@ module.exports = {
       files: ['apps/backend/**/*', 'packages/**/*'],
       extends: [
         'eslint:recommended',
-        '@typescript-eslint/recommended'
+        'plugin:@typescript-eslint/recommended'
       ]
     }
   ]
