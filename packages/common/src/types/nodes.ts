@@ -53,6 +53,23 @@ export interface DatabaseNodeData extends NodeData {
   refreshInterval?: number;
 }
 
+// 데이터베이스 노드 설정 (API 클라이언트용)
+export interface DatabaseNodeConfig {
+  connectionId?: string;
+  connectionConfig?: {
+    host: string;
+    port: number;
+    database: string;
+    username: string;
+    password: string;
+  };
+  query?: string;
+  queryType?: 'select' | 'insert' | 'update' | 'delete' | 'custom';
+  parameters?: Record<string, any>;
+  limit?: number;
+  offset?: number;
+}
+
 // 필터 노드 데이터
 export interface FilterNodeData extends NodeData {
   filters: FilterRule[];

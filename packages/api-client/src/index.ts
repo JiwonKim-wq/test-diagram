@@ -36,6 +36,23 @@ export class DiagramApiClient {
     );
   }
 
+  // 일반적인 HTTP 메서드들
+  async get(url: string, config?: any) {
+    return this.client.get(url, config);
+  }
+
+  async post(url: string, data?: any, config?: any) {
+    return this.client.post(url, data, config);
+  }
+
+  async put(url: string, data?: any, config?: any) {
+    return this.client.put(url, data, config);
+  }
+
+  async delete(url: string, config?: any) {
+    return this.client.delete(url, config);
+  }
+
   // 데이터베이스 연결 테스트
   async testConnection(config: DatabaseNodeConfig): Promise<ApiResponse<boolean>> {
     try {
@@ -58,7 +75,12 @@ export class DiagramApiClient {
     } catch (error) {
       return {
         success: false,
-        data: { rows: [], columns: [] },
+        data: { 
+          rows: [], 
+          columns: [],
+          executionTime: 0,
+          queryId: ''
+        },
         error: error instanceof Error ? error.message : '쿼리 실행 실패'
       };
     }

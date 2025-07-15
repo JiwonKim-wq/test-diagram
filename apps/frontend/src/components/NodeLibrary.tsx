@@ -113,11 +113,11 @@ interface NodeLibraryProps {
 
 const NodeLibraryItem: React.FC<{ 
   template: NodeTemplate; 
-  onNodeAdd?: (nodeType: NodeType) => void;
+  onNodeAdd?: (nodeType: NodeType, position?: { x: number; y: number }) => void;
 }> = ({ template, onNodeAdd }) => {
   const [isDragging, setIsDragging] = useState(false);
 
-  // 클릭으로 노드 추가 (대체 방법)
+  // 더블클릭으로 노드 추가
   const handleDoubleClick = () => {
     if (onNodeAdd) {
       onNodeAdd(template.nodeType);
@@ -232,7 +232,7 @@ const NodeLibraryItem: React.FC<{
   );
 };
 
-export const NodeLibrary: React.FC = () => {
+export const NodeLibrary: React.FC<NodeLibraryProps> = ({ onNodeAdd }) => {
   const dataSourceNodes = nodeTemplates.filter(template => template.category === NodeCategory.DATA_SOURCE);
   const processingNodes = nodeTemplates.filter(template => template.category === NodeCategory.PROCESSING);
   const outputNodes = nodeTemplates.filter(template => template.category === NodeCategory.OUTPUT);
@@ -247,7 +247,7 @@ export const NodeLibrary: React.FC = () => {
           </Text>
           <Stack gap="xs">
             {dataSourceNodes.map(template => (
-              <NodeLibraryItem key={template.id} template={template} />
+              <NodeLibraryItem key={template.id} template={template} onNodeAdd={onNodeAdd} />
             ))}
           </Stack>
         </div>
@@ -260,7 +260,7 @@ export const NodeLibrary: React.FC = () => {
           </Text>
           <Stack gap="xs">
             {processingNodes.map(template => (
-              <NodeLibraryItem key={template.id} template={template} />
+              <NodeLibraryItem key={template.id} template={template} onNodeAdd={onNodeAdd} />
             ))}
           </Stack>
         </div>
@@ -273,7 +273,7 @@ export const NodeLibrary: React.FC = () => {
           </Text>
           <Stack gap="xs">
             {customNodes.map(template => (
-              <NodeLibraryItem key={template.id} template={template} />
+              <NodeLibraryItem key={template.id} template={template} onNodeAdd={onNodeAdd} />
             ))}
           </Stack>
         </div>
@@ -286,7 +286,7 @@ export const NodeLibrary: React.FC = () => {
           </Text>
           <Stack gap="xs">
             {outputNodes.map(template => (
-              <NodeLibraryItem key={template.id} template={template} />
+              <NodeLibraryItem key={template.id} template={template} onNodeAdd={onNodeAdd} />
             ))}
           </Stack>
         </div>

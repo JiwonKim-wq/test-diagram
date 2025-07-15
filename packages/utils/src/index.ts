@@ -5,14 +5,17 @@ export const generateId = (): string => {
 
 // 노드 검증 유틸리티 export
 export * from './nodeValidation';
+export * from './filtering/filterEngine';
+export * from './aggregation/aggregateEngine';
+export * from './transformation/transformEngine';
 
 // 에러 생성 헬퍼
-export const createError = (code: string, message: string, details?: Record<string, any>) => {
-  return {
-    code,
-    message,
-    details
-  };
+export const createError = (message: string, code?: string) => {
+  const error = new Error(message);
+  if (code) {
+    (error as any).code = code;
+  }
+  return error;
 };
 
 // 딥 클론 유틸리티

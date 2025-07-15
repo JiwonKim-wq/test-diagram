@@ -178,13 +178,47 @@ const initialEdges = [
 
 interface DiagramCanvasProps {
   onNodeSelect?: (node: Node | null) => void;
+  onNodeAdd?: (addNodeFn: (nodeType: NodeType, position?: { x: number; y: number }) => void) => void;
 }
 
-const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
+const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect, onNodeAdd }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { project } = useReactFlow();
+
+  // 노드 추가 함수 (더블클릭용)
+  const addNodeToCanvas = useCallback((nodeType: NodeType, position?: { x: number; y: number }) => {
+    const nodeTemplates = {
+      [NodeType.DATABASE]: { label: 'MySQL 데이터베이스', description: 'MySQL 데이터베이스에서 데이터를 조회합니다' },
+      [NodeType.LOGPRESSO]: { label: 'Logpresso', description: 'Logpresso에서 로그 데이터를 조회합니다' },
+      [NodeType.FILTER]: { label: '데이터 필터링', description: '조건에 따라 데이터를 필터링합니다' },
+      [NodeType.AGGREGATE]: { label: '데이터 집계', description: '데이터를 그룹화하고 집계합니다' },
+      [NodeType.TRANSFORM]: { label: '데이터 변환', description: '데이터 형식을 변환합니다' },
+      [NodeType.JOIN]: { label: '데이터 조인', description: '두 데이터셋을 조인합니다' },
+      [NodeType.PYTHON]: { label: 'Python 스크립트', description: 'Python 코드를 실행합니다' },
+      [NodeType.OUTPUT]: { label: '결과 출력', description: '결과를 테이블로 출력합니다' },
+    };
+
+    const template = nodeTemplates[nodeType];
+    const newPosition = position || { x: Math.random() * 300 + 100, y: Math.random() * 300 + 100 };
+    
+    const newNode = {
+      id: generateNodeId(),
+      type: nodeType,
+      position: newPosition,
+      data: createNodeData(nodeType, template.label, template.description),
+    };
+
+    setNodes((nds) => nds.concat(newNode));
+  }, [setNodes]);
+
+  // onNodeAdd prop을 통해 노드 추가 함수 전달
+  React.useEffect(() => {
+    if (onNodeAdd) {
+      onNodeAdd(addNodeToCanvas as any);
+    }
+  }, [onNodeAdd, addNodeToCanvas]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -320,10 +354,10 @@ const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
   );
 };
 
-export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
+export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ onNodeSelect, onNodeAdd }) => {
   return (
     <ReactFlowProvider>
-      <DiagramCanvasInner onNodeSelect={onNodeSelect} />
+      <DiagramCanvasInner onNodeSelect={onNodeSelect} onNodeAdd={onNodeAdd} />
     </ReactFlowProvider>
   );
 }; 

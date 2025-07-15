@@ -5,13 +5,25 @@ import { DiagramCanvas } from './components/DiagramCanvas';
 import { NodeLibrary } from './components/NodeLibrary';
 import { PropertyPanel } from './components/PropertyPanel';
 import { Node } from 'reactflow';
+import { NodeType } from '@diagram/common';
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [addNodeFunction, setAddNodeFunction] = useState<((nodeType: NodeType, position?: { x: number; y: number }) => void) | null>(null);
 
   const handleNodeSelect = (node: Node | null) => {
     setSelectedNode(node);
+  };
+
+  const handleNodeAdd = (nodeType: NodeType) => {
+    if (addNodeFunction) {
+      addNodeFunction(nodeType);
+    }
+  };
+
+  const handleCanvasReady = (addNodeFn: (nodeType: NodeType, position?: { x: number; y: number }) => void) => {
+    setAddNodeFunction(() => addNodeFn);
   };
 
   return (
@@ -44,11 +56,11 @@ function App() {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        <NodeLibrary />
+        <NodeLibrary onNodeAdd={handleNodeAdd} />
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <DiagramCanvas onNodeSelect={handleNodeSelect} />
+        <DiagramCanvas onNodeSelect={handleNodeSelect} onNodeAdd={handleCanvasReady} />
       </AppShell.Main>
 
       <AppShell.Aside p="md">
