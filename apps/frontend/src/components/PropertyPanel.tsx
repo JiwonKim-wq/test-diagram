@@ -12,7 +12,10 @@ import {
   Alert,
   ScrollArea,
   Badge,
-  Divider
+  Divider,
+  Loader,
+  List,
+  ThemeIcon
 } from '@mantine/core';
 import { 
   IconSettings, 
@@ -21,14 +24,70 @@ import {
   IconInfoCircle,
   IconDatabase,
   IconFilter,
-  IconChartBar
+  IconChartBar,
+  IconAlertTriangle,
+  IconAlertCircle,
+  IconCheck
 } from '@tabler/icons-react';
 import { Node } from 'reactflow';
 import { NodeType } from '@diagram/common';
+import { useNodeValidation } from '../hooks/useNodeValidation';
 
 interface PropertyPanelProps {
   selectedNode?: Node | null;
 }
+
+// 검증 결과 표시 컴포넌트
+const ValidationStatus: React.FC<{ node: Node | null }> = ({ node }) => {
+  const { validationResult, isValid, errors, warnings, isValidating } = useNodeValidation({
+    node: node as any,
+    autoValidate: true
+  });
+
+  if (!node) return null;
+
+  if (isValidating) {
+    return (
+      <Alert color="blue" icon={<Loader size={16} />}>
+        검증 중...
+      </Alert>
+    );
+  }
+
+  if (isValid && warnings.length === 0) {
+    return (
+      <Alert color="green" icon={<IconCheck size={16} />}>
+        모든 설정이 올바릅니다.
+      </Alert>
+    );
+  }
+
+  return (
+    <Stack gap="xs">
+      {errors.length > 0 && (
+        <Alert color="red" icon={<IconAlertCircle size={16} />}>
+          <Text size="sm" fw={500} mb="xs">오류</Text>
+          <List size="sm" spacing="xs">
+            {errors.map((error, index) => (
+              <List.Item key={index}>{error}</List.Item>
+            ))}
+          </List>
+        </Alert>
+      )}
+      
+      {warnings.length > 0 && (
+        <Alert color="yellow" icon={<IconAlertTriangle size={16} />}>
+          <Text size="sm" fw={500} mb="xs">경고</Text>
+          <List size="sm" spacing="xs">
+            {warnings.map((warning, index) => (
+              <List.Item key={index}>{warning}</List.Item>
+            ))}
+          </List>
+        </Alert>
+      )}
+    </Stack>
+  );
+};
 
 const DatabaseNodeProperties: React.FC<{ nodeData: any }> = ({ nodeData }) => {
   const [connectionData, setConnectionData] = useState({
@@ -61,6 +120,7 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any }> = ({ nodeData }) => {
         placeholder="localhost"
         value={connectionData.host}
         onChange={(e) => setConnectionData({...connectionData, host: e.target.value})}
+        error={!connectionData.host ? '호스트 주소가 필요합니다.' : null}
       />
 
       <TextInput
@@ -75,6 +135,7 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any }> = ({ nodeData }) => {
         placeholder="database_name"
         value={connectionData.database}
         onChange={(e) => setConnectionData({...connectionData, database: e.target.value})}
+        error={!connectionData.database && nodeData?.nodeType === NodeType.DATABASE ? '데이터베이스명이 필요합니다.' : null}
       />
 
       <TextInput
@@ -98,6 +159,7 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any }> = ({ nodeData }) => {
         rows={4}
         value={connectionData.query}
         onChange={(e) => setConnectionData({...connectionData, query: e.target.value})}
+        error={!connectionData.query ? '쿼리가 필요합니다.' : null}
       />
 
       <Group justify="space-between">
@@ -237,6 +299,8 @@ const JoinNodeProperties: React.FC<{ nodeData: any }> = ({ nodeData }) => {
 };
 
 const PythonNodeProperties: React.FC<{ nodeData: any }> = ({ nodeData }) => {
+  const [code, setCode] = useState(nodeData?.code || '# Python 코드를 입력하세요\n');
+
   return (
     <Stack gap="md">
       <Text size="sm" fw={500} c="indigo">
@@ -247,8 +311,10 @@ const PythonNodeProperties: React.FC<{ nodeData: any }> = ({ nodeData }) => {
         label="Python 코드"
         placeholder="# Python 코드를 입력하세요"
         rows={8}
-        value={nodeData?.code || '# Python 코드를 입력하세요\n'}
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
         style={{ fontFamily: 'monospace' }}
+        error={!code.trim() ? 'Python 코드가 필요합니다.' : null}
       />
 
       <Button size="sm">
@@ -352,6 +418,9 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({ selectedNode }) =>
         </div>
 
         <Divider />
+
+        {/* 실시간 검증 상태 표시 */}
+        <ValidationStatus node={selectedNode} />
 
         <Tabs defaultValue="properties" variant="outline">
           <Tabs.List>

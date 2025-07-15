@@ -1,12 +1,17 @@
-export declare class ApiClient {
+import { DatabaseNodeConfig, QueryResult, ApiResponse } from '@diagram/common';
+export declare class DiagramApiClient {
     private client;
     constructor(baseURL?: string);
-    get<T = any>(url: string, params?: any): Promise<T>;
-    post<T = any>(url: string, data?: any): Promise<T>;
-    put<T = any>(url: string, data?: any): Promise<T>;
-    delete<T = any>(url: string): Promise<T>;
+    testConnection(config: DatabaseNodeConfig): Promise<ApiResponse<boolean>>;
+    executeQuery(config: DatabaseNodeConfig): Promise<ApiResponse<QueryResult>>;
+    saveDiagram(diagram: any): Promise<ApiResponse<{
+        id: string;
+    }>>;
+    loadDiagram(id: string): Promise<ApiResponse<any>>;
+    getDiagrams(): Promise<ApiResponse<any[]>>;
+    executeDiagram(diagramId: string): Promise<ApiResponse<any>>;
+    getExecutionResult(executionId: string): Promise<ApiResponse<any>>;
 }
-export declare const apiClient: ApiClient;
-export * from './database';
-export * from './diagram';
+export declare const apiClient: DiagramApiClient;
+export type { DatabaseNodeConfig, QueryResult, ApiResponse } from '@diagram/common';
 //# sourceMappingURL=index.d.ts.map
