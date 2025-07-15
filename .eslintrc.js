@@ -1,8 +1,7 @@
 module.exports = {
   root: true,
   extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended'
+    'eslint:recommended'
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
@@ -29,8 +28,7 @@ module.exports = {
     {
       files: ['apps/backend/**/*', 'packages/**/*'],
       extends: [
-        'eslint:recommended',
-        'plugin:@typescript-eslint/recommended'
+        'eslint:recommended'
       ]
     }
   ]

@@ -141,7 +141,7 @@ export const FilterNode: React.FC<FilterNodeProps> = ({
       {data.filters && data.filters.length > 0 && (
         <Group mt="xs">
           <Text size="xs" c="dimmed" truncate>
-            {data.filters.slice(0, 2).map(filter => 
+            {data.filters.slice(0, 2).map((filter: any) => 
               `${filter.field} ${filter.operator} ${filter.value}`
             ).join(` ${data.operator} `)}
             {data.filters.length > 2 && '...'}

@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppShell, Burger, Group, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { DiagramCanvas } from './components/DiagramCanvas';
 import { NodeLibrary } from './components/NodeLibrary';
 import { PropertyPanel } from './components/PropertyPanel';
+import { Node } from 'reactflow';
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+
+  const handleNodeSelect = (node: Node | null) => {
+    setSelectedNode(node);
+  };
 
   return (
     <AppShell
@@ -42,11 +48,11 @@ function App() {
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <DiagramCanvas />
+        <DiagramCanvas onNodeSelect={handleNodeSelect} />
       </AppShell.Main>
 
       <AppShell.Aside p="md">
-        <PropertyPanel />
+        <PropertyPanel selectedNode={selectedNode} />
       </AppShell.Aside>
     </AppShell>
   );

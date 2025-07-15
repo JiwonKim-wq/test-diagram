@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -9,11 +9,107 @@ import ReactFlow, {
   Connection,
   Edge,
   BackgroundVariant,
+  useReactFlow,
+  ReactFlowProvider,
+  Node,
+  NodeMouseHandler,
 } from 'reactflow';
 import { NodeType } from '@diagram/common';
 import { nodeTypes } from './nodes';
 
 import 'reactflow/dist/style.css';
+
+// 노드 ID 생성 유틸리티
+let nodeId = 0;
+const generateNodeId = () => `node_${++nodeId}`;
+
+// 노드 타입별 기본 데이터 생성
+const createNodeData = (nodeType: NodeType, label: string, description: string) => {
+  const baseData = {
+    label,
+    description,
+    nodeType,
+    isValid: false,
+  };
+
+  switch (nodeType) {
+    case NodeType.DATABASE:
+      return {
+        ...baseData,
+        queryType: 'select' as const,
+        isConnected: false,
+        rowCount: 0,
+        connectionConfig: {
+          host: '',
+          port: 3306,
+          database: '',
+          username: '',
+          password: ''
+        },
+        query: '',
+      };
+    
+    case NodeType.LOGPRESSO:
+      return {
+        ...baseData,
+        isConnected: false,
+        rowCount: 0,
+        connectionConfig: {
+          host: '',
+          port: 8080,
+          username: '',
+          password: ''
+        },
+        query: '',
+      };
+    
+    case NodeType.FILTER:
+      return {
+        ...baseData,
+        operator: 'AND' as const,
+        filters: [],
+      };
+    
+    case NodeType.AGGREGATE:
+      return {
+        ...baseData,
+        groupBy: [],
+        aggregations: [],
+      };
+    
+    case NodeType.TRANSFORM:
+      return {
+        ...baseData,
+        transformations: [],
+      };
+    
+    case NodeType.JOIN:
+      return {
+        ...baseData,
+        joinType: 'INNER' as const,
+        leftKey: '',
+        rightKey: '',
+      };
+    
+    case NodeType.PYTHON:
+      return {
+        ...baseData,
+        code: '# Python 코드를 입력하세요\n',
+        dependencies: [],
+      };
+    
+    case NodeType.OUTPUT:
+      return {
+        ...baseData,
+        outputType: 'table' as const,
+        format: 'json',
+        options: {},
+      };
+    
+    default:
+      return baseData;
+  }
+};
 
 const initialNodes: any[] = [
   {
@@ -64,8 +160,6 @@ const initialNodes: any[] = [
           enabled: true
         }
       ],
-      filteredCount: 890,
-      totalCount: 1250,
       isValid: true
     },
     type: NodeType.FILTER,
@@ -82,23 +176,79 @@ const initialEdges = [
   },
 ];
 
-export const DiagramCanvas: React.FC = () => {
+interface DiagramCanvasProps {
+  onNodeSelect?: (node: Node | null) => void;
+}
+
+const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const { project } = useReactFlow();
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
 
+  const onNodeClick: NodeMouseHandler = useCallback((event, node) => {
+    onNodeSelect?.(node);
+  }, [onNodeSelect]);
+
+  const onPaneClick = useCallback(() => {
+    onNodeSelect?.(null);
+  }, [onNodeSelect]);
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+      if (!reactFlowBounds) return;
+
+      const nodeData = event.dataTransfer.getData('application/reactflow');
+      if (!nodeData) return;
+
+      try {
+        const { nodeType, label, description } = JSON.parse(nodeData);
+        
+        const position = project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
+
+        const newNode = {
+          id: generateNodeId(),
+          type: nodeType,
+          position,
+          data: createNodeData(nodeType, label, description),
+        };
+
+        setNodes((nds) => nds.concat(newNode));
+      } catch (error) {
+        console.error('드롭 이벤트 처리 중 오류:', error);
+      }
+    },
+    [project, setNodes]
+  );
+
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ width: '100%', height: 'calc(100vh - 120px)' }} ref={reactFlowWrapper}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={onNodeClick}
+        onPaneClick={onPaneClick}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
         nodeTypes={nodeTypes}
         fitView
       >
@@ -107,5 +257,13 @@ export const DiagramCanvas: React.FC = () => {
         <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
       </ReactFlow>
     </div>
+  );
+};
+
+export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
+  return (
+    <ReactFlowProvider>
+      <DiagramCanvasInner onNodeSelect={onNodeSelect} />
+    </ReactFlowProvider>
   );
 }; 
