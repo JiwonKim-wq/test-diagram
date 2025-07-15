@@ -1,38 +1,97 @@
-.App {
-  text-align: center;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 기존 CSS */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.react-flow__node {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.react-flow__node:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #007bff;
+}
+
+/* 드래그 앤 드롭 애니메이션 */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+@keyframes dragFeedback {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(63, 81, 181, 0.1);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 
-.App-link {
-  color: #61dafb;
+/* 드래그 상태 스타일 */
+.dragging {
+  opacity: 0.5;
+  transform: scale(0.95) rotate(2deg);
+  transition: all 0.2s ease;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.drag-over {
+  animation: dragFeedback 1s ease-in-out infinite;
+  border: 2px dashed #3f51b5;
+  border-radius: 8px;
+}
+
+/* 드롭 존 피드백 */
+.drop-zone-active {
+  background-color: rgba(63, 81, 181, 0.05);
+  border: 2px dashed #3f51b5;
+  transition: all 0.3s ease;
+}
+
+/* 터치 디바이스 지원 */
+@media (pointer: coarse) {
+  .react-flow__node {
+    min-height: 44px;
+    min-width: 44px;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .node-library-item {
+    padding: 12px;
+    min-height: 60px;
   }
+}
+
+/* 크롬 드래그 앤 드롭 호환성 */
+[draggable="true"] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: element;
+  -khtml-user-drag: element;
+  -moz-user-drag: element;
+  -o-user-drag: element;
+  user-drag: element;
 }

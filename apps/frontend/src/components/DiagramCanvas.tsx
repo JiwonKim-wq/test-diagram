@@ -202,6 +202,11 @@ const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
+    
+    // 크롬 호환성을 위한 추가 처리
+    if (event.dataTransfer.types.includes('application/reactflow')) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
   }, []);
 
   const onDrop = useCallback(
@@ -209,14 +214,39 @@ const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
       event.preventDefault();
 
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds) return;
+      if (!reactFlowBounds) {
+        console.warn('React Flow bounds not found');
+        return;
+      }
 
-      const nodeData = event.dataTransfer.getData('application/reactflow');
-      if (!nodeData) return;
+      // 여러 데이터 타입 시도
+      let nodeData = event.dataTransfer.getData('application/reactflow');
+      if (!nodeData) {
+        // 대체 방법 시도
+        nodeData = event.dataTransfer.getData('text/plain');
+        if (!nodeData) {
+          console.warn('No drag data found');
+          return;
+        }
+      }
 
       try {
-        const { nodeType, label, description } = JSON.parse(nodeData);
+        let parsedData;
+        try {
+          parsedData = JSON.parse(nodeData);
+        } catch {
+          // JSON 파싱 실패 시 기본값 사용
+          console.warn('Failed to parse drag data, using fallback');
+          parsedData = {
+            nodeType: 'database',
+            label: '새 노드',
+            description: '드래그된 노드'
+          };
+        }
+
+        const { nodeType, label, description } = parsedData;
         
+        // 정확한 위치 계산
         const position = project({
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
@@ -229,13 +259,41 @@ const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
           data: createNodeData(nodeType, label, description),
         };
 
+        console.log('새 노드 추가:', newNode);
         setNodes((nds) => nds.concat(newNode));
+        
+        // 드롭 성공 피드백 (선택사항)
+        if (reactFlowWrapper.current) {
+          reactFlowWrapper.current.style.backgroundColor = '#e3f2fd';
+          setTimeout(() => {
+            if (reactFlowWrapper.current) {
+              reactFlowWrapper.current.style.backgroundColor = '';
+            }
+          }, 200);
+        }
       } catch (error) {
         console.error('드롭 이벤트 처리 중 오류:', error);
       }
     },
     [project, setNodes]
   );
+
+  const onDragEnter = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    // 드래그 진입 시 시각적 피드백
+    if (reactFlowWrapper.current) {
+      reactFlowWrapper.current.style.backgroundColor = '#f3e5f5';
+    }
+  }, []);
+
+  const onDragLeave = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    // 드래그가 영역을 벗어날 때 피드백 제거
+    if (reactFlowWrapper.current && event.relatedTarget && 
+        !reactFlowWrapper.current.contains(event.relatedTarget as Element)) {
+      reactFlowWrapper.current.style.backgroundColor = '';
+    }
+  }, []);
 
   return (
     <div style={{ width: '100%', height: 'calc(100vh - 120px)' }} ref={reactFlowWrapper}>
@@ -249,6 +307,8 @@ const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect }) => {
         onPaneClick={onPaneClick}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        onDragEnter={onDragEnter}
+        onDragLeave={onDragLeave}
         nodeTypes={nodeTypes}
         fitView
       >

@@ -1,22 +1,24 @@
-import React from 'react';
-import { 
-  Stack, 
-  Text, 
-  Card, 
-  Group, 
+import React, { useState } from 'react';
+import {
+  Card,
+  Group,
+  Text,
+  Stack,
   ThemeIcon,
+  Divider,
   ScrollArea,
-  Divider 
+  Badge,
+  Box,
 } from '@mantine/core';
-import { 
-  IconDatabase, 
-  IconFilter, 
-  IconChartBar, 
-  IconTable,
+import {
+  IconDatabase,
+  IconFilter,
+  IconChartBar,
   IconTransform,
-  IconGitMerge,
+  IconGitBranch,
   IconCode,
-  IconFileText,
+  IconFileExport,
+  IconCloud
 } from '@tabler/icons-react';
 import { NodeType, NodeCategory } from '@diagram/common';
 
@@ -44,7 +46,7 @@ const nodeTemplates: NodeTemplate[] = [
     id: 'logpresso-database',
     nodeType: NodeType.LOGPRESSO,
     label: 'Logpresso',
-    icon: <IconFileText size={18} />,
+    icon: <IconFileExport size={18} />,
     description: 'Logpresso에서 로그 데이터를 조회합니다',
     category: NodeCategory.DATA_SOURCE,
     color: '#0c8599'
@@ -80,7 +82,7 @@ const nodeTemplates: NodeTemplate[] = [
     id: 'join-node',
     nodeType: NodeType.JOIN,
     label: '데이터 조인',
-    icon: <IconGitMerge size={18} />,
+    icon: <IconGitBranch size={18} />,
     description: '두 데이터셋을 조인합니다',
     category: NodeCategory.PROCESSING,
     color: '#2f9e44'
@@ -98,22 +100,67 @@ const nodeTemplates: NodeTemplate[] = [
     id: 'table-output',
     nodeType: NodeType.OUTPUT,
     label: '결과 출력',
-    icon: <IconTable size={18} />,
+    icon: <IconCloud size={18} />,
     description: '결과를 테이블로 출력합니다',
     category: NodeCategory.OUTPUT,
     color: '#c2255c'
   }
 ];
 
-const NodeLibraryItem: React.FC<{ template: NodeTemplate }> = ({ template }) => {
+interface NodeLibraryProps {
+  onNodeAdd?: (nodeType: NodeType, position?: { x: number; y: number }) => void;
+}
+
+const NodeLibraryItem: React.FC<{ 
+  template: NodeTemplate; 
+  onNodeAdd?: (nodeType: NodeType) => void;
+}> = ({ template, onNodeAdd }) => {
+  const [isDragging, setIsDragging] = useState(false);
+
+  // 클릭으로 노드 추가 (대체 방법)
+  const handleDoubleClick = () => {
+    if (onNodeAdd) {
+      onNodeAdd(template.nodeType);
+    }
+  };
+
   const handleDragStart = (event: React.DragEvent) => {
-    event.dataTransfer.setData('application/reactflow', JSON.stringify({
+    console.log('드래그 시작:', template.nodeType);
+    setIsDragging(true);
+    
+    // 드래그 데이터 설정
+    const dragData = {
       nodeType: template.nodeType,
       label: template.label,
       description: template.description,
       color: template.color
-    }));
-    event.dataTransfer.effectAllowed = 'move';
+    };
+    
+    // 여러 형식으로 데이터 설정 (크롬 호환성)
+    event.dataTransfer.setData('application/reactflow', JSON.stringify(dragData));
+    event.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+    event.dataTransfer.setData('application/json', JSON.stringify(dragData));
+    event.dataTransfer.effectAllowed = 'copy';
+    
+    console.log('드래그 데이터 설정 완료:', dragData);
+  };
+
+  const handleDragEnd = () => {
+    console.log('드래그 종료');
+    setIsDragging(false);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    // 마우스 이벤트를 통한 시각적 피드백
+    (e.currentTarget as HTMLElement).style.transform = 'scale(0.98)';
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
   };
 
   return (
@@ -123,30 +170,64 @@ const NodeLibraryItem: React.FC<{ template: NodeTemplate }> = ({ template }) => 
       radius="md"
       withBorder
       style={{ 
-        cursor: 'grab',
+        cursor: isDragging ? 'grabbing' : 'grab',
         borderColor: template.color + '20',
-        backgroundColor: template.color + '05'
+        backgroundColor: template.color + '05',
+        opacity: isDragging ? 0.5 : 1,
+        transform: isDragging ? 'scale(0.95)' : 'scale(1)',
+        transition: 'all 0.2s ease',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        MozUserSelect: 'none',
+        msUserSelect: 'none',
+        position: 'relative'
       }}
-      draggable
+      draggable={true}
       onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDoubleClick={handleDoubleClick}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
     >
       <Group gap="sm">
         <ThemeIcon 
           variant="light" 
-          size="md"
+          size="lg" 
           color={template.color}
+          style={{ pointerEvents: 'none' }}
         >
           {template.icon}
         </ThemeIcon>
-        <div style={{ flex: 1 }}>
-          <Text size="sm" fw={500}>
+        
+        <Box style={{ flex: 1, pointerEvents: 'none' }}>
+          <Text fw={500} size="sm" style={{ pointerEvents: 'none' }}>
             {template.label}
           </Text>
-          <Text size="xs" c="dimmed">
+          <Text size="xs" c="dimmed" style={{ pointerEvents: 'none' }}>
             {template.description}
           </Text>
-        </div>
+          <Text size="xs" c="blue" style={{ pointerEvents: 'none', marginTop: 2 }}>
+            드래그하거나 더블클릭하세요
+          </Text>
+        </Box>
       </Group>
+      
+      {isDragging && (
+        <Badge
+          size="xs"
+          variant="filled"
+          color={template.color}
+          style={{
+            position: 'absolute',
+            top: -5,
+            right: -5,
+            animation: 'pulse 1s infinite'
+          }}
+        >
+          드래그 중
+        </Badge>
+      )}
     </Card>
   );
 };
@@ -160,13 +241,8 @@ export const NodeLibrary: React.FC = () => {
   return (
     <ScrollArea h="100%">
       <Stack gap="md">
-        <Text size="lg" fw={600}>
-          노드 라이브러리
-        </Text>
-        
-        {/* 데이터 소스 노드 */}
         <div>
-          <Text size="sm" fw={500} mb="xs" c="blue">
+          <Text size="sm" fw={600} c="dimmed" mb="xs">
             데이터 소스
           </Text>
           <Stack gap="xs">
@@ -178,9 +254,8 @@ export const NodeLibrary: React.FC = () => {
 
         <Divider />
 
-        {/* 데이터 처리 노드 */}
         <div>
-          <Text size="sm" fw={500} mb="xs" c="green">
+          <Text size="sm" fw={600} c="dimmed" mb="xs">
             데이터 처리
           </Text>
           <Stack gap="xs">
@@ -192,9 +267,8 @@ export const NodeLibrary: React.FC = () => {
 
         <Divider />
 
-        {/* 사용자 정의 노드 */}
         <div>
-          <Text size="sm" fw={500} mb="xs" c="violet">
+          <Text size="sm" fw={600} c="dimmed" mb="xs">
             사용자 정의
           </Text>
           <Stack gap="xs">
@@ -206,9 +280,8 @@ export const NodeLibrary: React.FC = () => {
 
         <Divider />
 
-        {/* 출력 노드 */}
         <div>
-          <Text size="sm" fw={500} mb="xs" c="orange">
+          <Text size="sm" fw={600} c="dimmed" mb="xs">
             출력
           </Text>
           <Stack gap="xs">
