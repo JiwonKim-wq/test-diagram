@@ -32,9 +32,9 @@
 #### 프론트엔드 (apps/frontend) 설정
 - [x] React TypeScript 프로젝트 생성
 - [x] Mantine UI 라이브러리 설치 및 설정
-- [ ] Tailwind CSS 설정
+- [x] Tailwind CSS 설정
 - [x] Redux Toolkit 설정
-- [ ] React Flow 라이브러리 설치 및 기본 설정
+- [x] React Flow 라이브러리 설치 및 기본 설정
 - [x] **[커밋]** 프론트엔드 기본 설정 완료
 
 #### 백엔드 (apps/backend) 설정

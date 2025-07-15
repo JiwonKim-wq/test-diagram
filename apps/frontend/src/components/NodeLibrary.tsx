@@ -1,6 +1,21 @@
 import React from 'react';
-import { Stack, Text, Card, Group, ThemeIcon } from '@mantine/core';
-import { IconDatabase, IconFilter, IconArrowsUpDown, IconFileExport } from '@tabler/icons-react';
+import { 
+  Stack, 
+  Text, 
+  Card, 
+  Group, 
+  ThemeIcon,
+  ScrollArea,
+  Divider 
+} from '@mantine/core';
+import { 
+  IconDatabase, 
+  IconFilter, 
+  IconChartBar, 
+  IconTable,
+  IconTransform,
+  IconOutput
+} from '@tabler/icons-react';
 
 interface NodeType {
   id: string;
@@ -12,95 +27,134 @@ interface NodeType {
 
 const nodeTypes: NodeType[] = [
   {
-    id: 'database-mysql',
-    label: 'MySQL 연결',
-    icon: <IconDatabase size={20} />,
-    description: 'MySQL 데이터베이스에 연결',
-    category: '데이터 소스'
+    id: 'mysql-db',
+    label: 'MySQL 데이터베이스',
+    icon: <IconDatabase size={18} />,
+    description: 'MySQL 데이터베이스 연결',
+    category: 'data-source'
   },
   {
-    id: 'database-logpresso',
-    label: 'Logpresso 연결',
-    icon: <IconDatabase size={20} />,
-    description: 'Logpresso에 연결',
-    category: '데이터 소스'
+    id: 'logpresso-db',
+    label: 'Logpresso',
+    icon: <IconDatabase size={18} />,
+    description: 'Logpresso 로그 데이터 연결',
+    category: 'data-source'
   },
   {
-    id: 'filter-data',
+    id: 'filter-node',
     label: '데이터 필터링',
-    icon: <IconFilter size={20} />,
-    description: '조건에 따라 데이터 필터링',
-    category: '데이터 처리'
+    icon: <IconFilter size={18} />,
+    description: '조건에 따른 데이터 필터링',
+    category: 'processing'
   },
   {
-    id: 'transform-data',
+    id: 'aggregate-node',
+    label: '데이터 집계',
+    icon: <IconChartBar size={18} />,
+    description: '데이터 그룹화 및 집계',
+    category: 'processing'
+  },
+  {
+    id: 'transform-node',
     label: '데이터 변환',
-    icon: <IconArrowsUpDown size={20} />,
+    icon: <IconTransform size={18} />,
     description: '데이터 형식 변환',
-    category: '데이터 처리'
+    category: 'processing'
   },
   {
-    id: 'export-csv',
-    label: 'CSV 내보내기',
-    icon: <IconFileExport size={20} />,
-    description: 'CSV 파일로 내보내기',
-    category: '출력'
-  },
+    id: 'table-output',
+    label: '테이블 출력',
+    icon: <IconTable size={18} />,
+    description: '결과를 테이블로 출력',
+    category: 'output'
+  }
 ];
 
-export const NodeLibrary: React.FC = () => {
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    event.dataTransfer.setData('application/reactflow', nodeType);
+const NodeLibraryItem: React.FC<{ node: NodeType }> = ({ node }) => {
+  const handleDragStart = (event: React.DragEvent) => {
+    event.dataTransfer.setData('application/reactflow', node.id);
     event.dataTransfer.effectAllowed = 'move';
   };
 
-  const groupedNodes = nodeTypes.reduce((acc, node) => {
-    if (!acc[node.category]) {
-      acc[node.category] = [];
-    }
-    acc[node.category].push(node);
-    return acc;
-  }, {} as Record<string, NodeType[]>);
+  return (
+    <Card 
+      shadow="sm" 
+      padding="sm" 
+      radius="md"
+      withBorder
+      style={{ cursor: 'grab' }}
+      draggable
+      onDragStart={handleDragStart}
+    >
+      <Group gap="sm">
+        <ThemeIcon variant="light" size="md">
+          {node.icon}
+        </ThemeIcon>
+        <div style={{ flex: 1 }}>
+          <Text size="sm" fw={500}>
+            {node.label}
+          </Text>
+          <Text size="xs" c="dimmed">
+            {node.description}
+          </Text>
+        </div>
+      </Group>
+    </Card>
+  );
+};
+
+export const NodeLibrary: React.FC = () => {
+  const dataSourceNodes = nodeTypes.filter(node => node.category === 'data-source');
+  const processingNodes = nodeTypes.filter(node => node.category === 'processing');
+  const outputNodes = nodeTypes.filter(node => node.category === 'output');
 
   return (
-    <Stack gap="md">
-      <Text size="lg" fw={600}>
-        노드 라이브러리
-      </Text>
-      
-      {Object.entries(groupedNodes).map(([category, nodes]) => (
-        <div key={category}>
-          <Text size="sm" fw={500} c="dimmed" mb="xs">
-            {category}
+    <ScrollArea h="100%">
+      <Stack gap="md">
+        <Text size="lg" fw={600}>
+          노드 라이브러리
+        </Text>
+        
+        {/* 데이터 소스 노드 */}
+        <div>
+          <Text size="sm" fw={500} mb="xs" c="blue">
+            데이터 소스
           </Text>
           <Stack gap="xs">
-            {nodes.map((node) => (
-              <Card
-                key={node.id}
-                padding="xs"
-                withBorder
-                style={{ cursor: 'grab' }}
-                draggable
-                onDragStart={(event) => onDragStart(event, node.id)}
-              >
-                <Group gap="xs">
-                  <ThemeIcon size="sm" variant="light">
-                    {node.icon}
-                  </ThemeIcon>
-                  <div>
-                    <Text size="sm" fw={500}>
-                      {node.label}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {node.description}
-                    </Text>
-                  </div>
-                </Group>
-              </Card>
+            {dataSourceNodes.map(node => (
+              <NodeLibraryItem key={node.id} node={node} />
             ))}
           </Stack>
         </div>
-      ))}
-    </Stack>
+
+        <Divider />
+
+        {/* 데이터 처리 노드 */}
+        <div>
+          <Text size="sm" fw={500} mb="xs" c="green">
+            데이터 처리
+          </Text>
+          <Stack gap="xs">
+            {processingNodes.map(node => (
+              <NodeLibraryItem key={node.id} node={node} />
+            ))}
+          </Stack>
+        </div>
+
+        <Divider />
+
+        {/* 출력 노드 */}
+        <div>
+          <Text size="sm" fw={500} mb="xs" c="orange">
+            출력
+          </Text>
+          <Stack gap="xs">
+            {outputNodes.map(node => (
+              <NodeLibraryItem key={node.id} node={node} />
+            ))}
+          </Stack>
+        </div>
+      </Stack>
+    </ScrollArea>
   );
 }; 

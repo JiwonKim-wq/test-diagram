@@ -1,8 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
+import diagramReducer from './slices/diagramSlice';
 
 export const store = configureStore({
   reducer: {
-    // TODO: 리듀서들 추가 예정
+    diagram: diagramReducer,
   },
 });
 
