@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = {  
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
@@ -9,5 +9,7 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts']
+  moduleNameMapper: {
+    '^@diagram/common$': '<rootDir>/../../packages/common/src/index.ts'
+  }
 }; 

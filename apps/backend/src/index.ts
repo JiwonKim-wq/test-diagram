@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler';
 import databaseRoutes from './routes/database';
+import dataProcessingRoutes from './routes/dataProcessing';
 import { DatabaseHealthChecker } from './database/DatabaseHealthChecker';
 
 // 환경 변수 로드
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
 
 // API 라우터
 app.use('/api/database', databaseRoutes);
+app.use('/api/data-processing', dataProcessingRoutes);
 
 // 에러 핸들링
 app.use(errorHandler);

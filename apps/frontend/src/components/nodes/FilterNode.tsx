@@ -1,8 +1,8 @@
 import React from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
-import { Card, Group, Text, Badge, Tooltip, ActionIcon } from '@mantine/core';
-import { IconFilter, IconGripVertical, IconAlertTriangle, IconCheck } from '@tabler/icons-react';
+import { NodeProps, useReactFlow } from 'reactflow';
+import { Group, Text, Badge } from '@mantine/core';
 import { FilterNodeData, NodeType } from '@diagram/common';
+import { BaseNodeComponent } from './BaseNode';
 
 interface FilterNodeProps extends NodeProps {
   data: FilterNodeData & {
@@ -13,142 +13,84 @@ interface FilterNodeProps extends NodeProps {
     filteredCount?: number;
     totalCount?: number;
   };
+  onDelete?: (nodeId: string) => void;
 }
 
-export const FilterNode: React.FC<FilterNodeProps> = ({ 
-  data, 
-  selected, 
-  dragging 
-}) => {
-  const nodeColor = '#f76707';
-  const hasErrors = data.errors && data.errors.length > 0;
-  const hasWarnings = data.warnings && data.warnings.length > 0;
+export const FilterNode: React.FC<FilterNodeProps> = (props) => {
+  const { data, ...restProps } = props;
+  const { setNodes, setEdges } = useReactFlow();
   
+  // 노드 삭제 함수
+  const handleDelete = (nodeId: string) => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== nodeId));
+    setEdges((edges) => edges.filter((edge) => 
+      edge.source !== nodeId && edge.target !== nodeId
+    ));
+  };
+  
+  // BaseNode에 전달할 데이터 준비
+  const baseNodeData = {
+    ...data,
+    hasInputs: true,
+    hasOutputs: true,
+  };
+
   return (
-    <Card
-      shadow={selected ? 'md' : 'sm'}
-      padding="sm"
-      radius="md"
-      style={{
-        borderColor: selected ? nodeColor : 'transparent',
-        borderWidth: selected ? 2 : 1,
-        borderStyle: 'solid',
-        backgroundColor: dragging ? '#f8f9fa' : 'white',
-        minWidth: 180,
-        maxWidth: 250,
-        cursor: dragging ? 'grabbing' : 'grab'
-      }}
-    >
-      {/* 입력 핸들 */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        style={{
-          background: nodeColor,
-          width: 12,
-          height: 12,
-          border: '2px solid white'
-        }}
+    <div>
+      <BaseNodeComponent
+        {...restProps}
+        data={baseNodeData}
+        onDelete={handleDelete}
       />
-
-      {/* 출력 핸들 */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{
-          background: nodeColor,
-          width: 12,
-          height: 12,
-          border: '2px solid white'
-        }}
-      />
-
-      {/* 노드 헤더 */}
-      <Group justify="space-between" mb="xs">
-        <Group gap="xs">
-          <IconFilter size={16} color={nodeColor} />
-          <Text size="sm" fw={500} c={nodeColor}>
-            {data.label}
-          </Text>
-        </Group>
-        
-        <Group gap="xs">
-          {/* 상태 표시 */}
-          {hasErrors && (
-            <Tooltip label={data.errors?.join(', ')}>
-              <Badge color="red" size="sm" variant="light">
-                <IconAlertTriangle size={12} />
-              </Badge>
-            </Tooltip>
-          )}
-          {hasWarnings && (
-            <Tooltip label={data.warnings?.join(', ')}>
-              <Badge color="yellow" size="sm" variant="light">
-                <IconAlertTriangle size={12} />
-              </Badge>
-            </Tooltip>
-          )}
-          {data.isValid && !hasErrors && !hasWarnings && (
-            <Badge color="green" size="sm" variant="light">
-              <IconCheck size={12} />
-            </Badge>
-          )}
-          
-          {/* 드래그 핸들 */}
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="sm"
-            style={{ cursor: 'grab' }}
-          >
-            <IconGripVertical size={12} />
-          </ActionIcon>
-        </Group>
-      </Group>
-
-      {/* 노드 설명 */}
-      {data.description && (
-        <Text size="xs" c="dimmed" mb="xs">
-          {data.description}
-        </Text>
-      )}
-
-      {/* 필터 정보 표시 */}
-      <Group justify="space-between" mt="xs">
-        <Group gap="xs">
+      
+      {/* 필터 특화 정보 표시 */}
+      <div style={{ position: 'absolute', bottom: 4, left: 8, right: 8 }}>
+        <Group justify="space-between" gap="xs">
           {/* 필터 개수 */}
-          <Badge color="blue" size="xs" variant="outline">
-            {data.filters?.length || 0} filters
-          </Badge>
+          {data.filters && data.filters.length > 0 && (
+            <Group gap="xs">
+              <Badge size="xs" variant="outline" color="orange">
+                {data.filters.length} filters
+              </Badge>
+              {data.operator && (
+                <Badge size="xs" variant="filled" color="orange">
+                  {data.operator}
+                </Badge>
+              )}
+            </Group>
+          )}
           
-          {/* 연산자 */}
-          {data.operator && (
-            <Badge color="gray" size="xs" variant="light">
-              {data.operator}
-            </Badge>
+          {/* 필터링 결과 */}
+          {data.filteredCount !== undefined && data.totalCount !== undefined && (
+            <Text size="xs" c="dimmed">
+              {data.filteredCount.toLocaleString()} / {data.totalCount.toLocaleString()}
+            </Text>
           )}
         </Group>
         
-        {/* 필터링 결과 */}
-        {data.filteredCount !== undefined && data.totalCount !== undefined && (
-          <Text size="xs" c="dimmed">
-            {data.filteredCount.toLocaleString()} / {data.totalCount.toLocaleString()}
+        {/* 필터 규칙 미리보기 */}
+        {data.filters && data.filters.length > 0 && (
+          <Text 
+            size="xs" 
+            c="dimmed" 
+            style={{ 
+              fontSize: '10px',
+              marginTop: 2,
+              maxWidth: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {data.filters
+              .filter(f => f.enabled)
+              .map(f => `${f.field} ${f.operator} ${f.value}`)
+              .join(` ${data.operator} `)
+            }
           </Text>
         )}
-      </Group>
-      
-      {/* 필터 규칙 미리보기 */}
-      {data.filters && data.filters.length > 0 && (
-        <Group mt="xs">
-          <Text size="xs" c="dimmed" truncate>
-            {data.filters.slice(0, 2).map((filter: any) => 
-              `${filter.field} ${filter.operator} ${filter.value}`
-            ).join(` ${data.operator} `)}
-            {data.filters.length > 2 && '...'}
-          </Text>
-        </Group>
-      )}
-    </Card>
+      </div>
+    </div>
   );
 };
 

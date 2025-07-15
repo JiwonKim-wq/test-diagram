@@ -1,8 +1,9 @@
 import React from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
-import { Card, Group, Text, Badge, Tooltip, ActionIcon } from '@mantine/core';
-import { IconDatabase, IconPlugConnected, IconPlugConnectedX, IconGripVertical, IconAlertTriangle, IconCheck } from '@tabler/icons-react';
+import { NodeProps, useReactFlow } from 'reactflow';
+import { Group, Text, Badge, Tooltip } from '@mantine/core';
+import { IconDatabase, IconPlugConnected, IconPlugConnectedX } from '@tabler/icons-react';
 import { DatabaseNodeData, NodeType } from '@diagram/common';
+import { BaseNodeComponent } from './BaseNode';
 
 interface DatabaseNodeProps extends NodeProps {
   data: DatabaseNodeData & {
@@ -13,146 +14,89 @@ interface DatabaseNodeProps extends NodeProps {
     isConnected?: boolean;
     rowCount?: number;
   };
+  onDelete?: (nodeId: string) => void;
 }
 
-export const DatabaseNode: React.FC<DatabaseNodeProps> = ({ 
-  data, 
-  selected, 
-  dragging 
-}) => {
-  const nodeColor = '#1971c2';
-  const hasErrors = data.errors && data.errors.length > 0;
-  const hasWarnings = data.warnings && data.warnings.length > 0;
+export const DatabaseNode: React.FC<DatabaseNodeProps> = (props) => {
+  const { data, ...restProps } = props;
+  const { setNodes, setEdges } = useReactFlow();
   
+  // 노드 삭제 함수
+  const handleDelete = (nodeId: string) => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== nodeId));
+    setEdges((edges) => edges.filter((edge) => 
+      edge.source !== nodeId && edge.target !== nodeId
+    ));
+  };
+  
+  // BaseNode에 전달할 데이터 준비
+  const baseNodeData = {
+    ...data,
+    hasInputs: false,
+    hasOutputs: true,
+  };
+
   return (
-    <Card
-      shadow={selected ? 'md' : 'sm'}
-      padding="sm"
-      radius="md"
-      style={{
-        borderColor: selected ? nodeColor : 'transparent',
-        borderWidth: selected ? 2 : 1,
-        borderStyle: 'solid',
-        backgroundColor: dragging ? '#f8f9fa' : 'white',
-        minWidth: 180,
-        maxWidth: 250,
-        cursor: dragging ? 'grabbing' : 'grab'
-      }}
-    >
-      {/* 출력 핸들 */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{
-          background: nodeColor,
-          width: 12,
-          height: 12,
-          border: '2px solid white'
-        }}
+    <div>
+      <BaseNodeComponent
+        {...restProps}
+        data={baseNodeData}
+        onDelete={handleDelete}
       />
-
-      {/* 노드 헤더 */}
-      <Group justify="space-between" mb="xs">
-        <Group gap="xs">
-          <IconDatabase size={16} color={nodeColor} />
-          <Text size="sm" fw={500} c={nodeColor}>
-            {data.label}
-          </Text>
-        </Group>
-        
-        <Group gap="xs">
-          {/* 상태 표시 */}
-          {hasErrors && (
-            <Tooltip label={data.errors?.join(', ')}>
-              <Badge color="red" size="sm" variant="light">
-                <IconAlertTriangle size={12} />
-              </Badge>
-            </Tooltip>
-          )}
-          {hasWarnings && (
-            <Tooltip label={data.warnings?.join(', ')}>
-              <Badge color="yellow" size="sm" variant="light">
-                <IconAlertTriangle size={12} />
-              </Badge>
-            </Tooltip>
-          )}
-          {data.isValid && !hasErrors && !hasWarnings && (
-            <Badge color="green" size="sm" variant="light">
-              <IconCheck size={12} />
-            </Badge>
-          )}
-          
-          {/* 드래그 핸들 */}
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="sm"
-            style={{ cursor: 'grab' }}
-          >
-            <IconGripVertical size={12} />
-          </ActionIcon>
-        </Group>
-      </Group>
-
-      {/* 노드 설명 */}
-      {data.description && (
-        <Text size="xs" c="dimmed" mb="xs">
-          {data.description}
-        </Text>
-      )}
-
-      {/* 추가 정보 표시 */}
-      <Group justify="space-between" mt="xs">
-        <Group gap="xs">
+      
+      {/* 데이터베이스 특화 정보 표시 */}
+      <div style={{ position: 'absolute', bottom: 4, left: 8, right: 8 }}>
+        <Group justify="space-between" gap="xs">
           {/* 연결 상태 */}
-          {data.isConnected ? (
-            <Tooltip label="연결됨">
-              <Badge color="green" size="xs" variant="light">
-                <IconPlugConnected size={10} />
-              </Badge>
+          <Group gap="xs">
+            <Tooltip label={data.isConnected ? '연결됨' : '연결 안됨'}>
+              {data.isConnected ? (
+                <IconPlugConnected size={12} color="#40c057" />
+              ) : (
+                <IconPlugConnectedX size={12} color="#fa5252" />
+              )}
             </Tooltip>
-          ) : (
-            <Tooltip label="연결 안됨">
-              <Badge color="red" size="xs" variant="light">
-                <IconPlugConnectedX size={10} />
+            {data.queryType && (
+              <Badge size="xs" variant="outline" color="blue">
+                {data.queryType.toUpperCase()}
               </Badge>
-            </Tooltip>
+            )}
+          </Group>
+          
+          {/* 행 개수 */}
+          {data.rowCount !== undefined && (
+            <Text size="xs" c="dimmed">
+              {data.rowCount.toLocaleString()} rows
+            </Text>
           )}
           
-          {/* 쿼리 타입 */}
-          {data.queryType && (
-            <Badge color="blue" size="xs" variant="outline">
-              {data.queryType.toUpperCase()}
-            </Badge>
+          {/* 호스트 정보 */}
+          {data.connectionConfig?.host && (
+            <Text size="xs" c="dimmed" style={{ fontSize: '10px' }}>
+              {data.connectionConfig.host}:{data.connectionConfig.port}
+            </Text>
           )}
         </Group>
         
-        {/* 행 수 표시 */}
-        {data.rowCount !== undefined && (
-          <Text size="xs" c="dimmed">
-            {data.rowCount.toLocaleString()} rows
-          </Text>
-        )}
-      </Group>
-      
-      {/* 연결 정보 */}
-      {data.connectionConfig && (
-        <Group mt="xs">
-          <Text size="xs" c="dimmed">
-            {data.connectionConfig.host}:{data.connectionConfig.port}
-          </Text>
-        </Group>
-      )}
-      
-      {/* 쿼리 미리보기 */}
-      {data.query && (
-        <Tooltip label={data.query}>
-          <Text size="xs" c="dimmed" truncate mt="xs">
+        {/* 쿼리 미리보기 */}
+        {data.query && (
+          <Text 
+            size="xs" 
+            c="dimmed" 
+            style={{ 
+              fontSize: '10px',
+              marginTop: 2,
+              maxWidth: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
             {data.query}
           </Text>
-        </Tooltip>
-      )}
-    </Card>
+        )}
+      </div>
+    </div>
   );
 };
 

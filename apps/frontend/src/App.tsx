@@ -11,6 +11,7 @@ function App() {
   const [opened, { toggle }] = useDisclosure();
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [addNodeFunction, setAddNodeFunction] = useState<((nodeType: NodeType, position?: { x: number; y: number }) => void) | null>(null);
+  const [updateNodeFunction, setUpdateNodeFunction] = useState<((nodeId: string, updates: any) => void) | null>(null);
 
   const handleNodeSelect = (node: Node | null) => {
     setSelectedNode(node);
@@ -22,8 +23,26 @@ function App() {
     }
   };
 
-  const handleCanvasReady = (addNodeFn: (nodeType: NodeType, position?: { x: number; y: number }) => void) => {
+  const handleNodeUpdate = (nodeId: string, updates: any) => {
+    if (updateNodeFunction) {
+      updateNodeFunction(nodeId, updates);
+      
+      // 선택된 노드가 업데이트된 노드와 같다면 selectedNode도 업데이트
+      if (selectedNode && selectedNode.id === nodeId) {
+        setSelectedNode({
+          ...selectedNode,
+          data: {
+            ...selectedNode.data,
+            ...updates
+          }
+        });
+      }
+    }
+  };
+
+  const handleCanvasReady = (addNodeFn: (nodeType: NodeType, position?: { x: number; y: number }) => void, updateNodeFn: (nodeId: string, updates: any) => void) => {
     setAddNodeFunction(() => addNodeFn);
+    setUpdateNodeFunction(() => updateNodeFn);
   };
 
   return (
@@ -64,7 +83,7 @@ function App() {
       </AppShell.Main>
 
       <AppShell.Aside p="md">
-        <PropertyPanel selectedNode={selectedNode} />
+        <PropertyPanel selectedNode={selectedNode} onNodeUpdate={handleNodeUpdate} />
       </AppShell.Aside>
     </AppShell>
   );

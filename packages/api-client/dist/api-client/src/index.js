@@ -139,6 +139,89 @@ export class DiagramApiClient {
             };
         }
     }
+    // === 데이터 처리 API 메서드들 ===
+    // 데이터 필터링
+    async filterData(data, filterRules) {
+        try {
+            const response = await this.client.post('/api/data-processing/filter', {
+                data,
+                filterRules
+            });
+            return response.data;
+        }
+        catch (error) {
+            return {
+                success: false,
+                data: [],
+                error: error instanceof Error ? error.message : '데이터 필터링 실패'
+            };
+        }
+    }
+    // 데이터 집계
+    async aggregateData(data, aggregateRules, groupBy) {
+        try {
+            const response = await this.client.post('/api/data-processing/aggregate', {
+                data,
+                aggregateRules,
+                groupBy: groupBy || []
+            });
+            return response.data;
+        }
+        catch (error) {
+            return {
+                success: false,
+                data: [],
+                error: error instanceof Error ? error.message : '데이터 집계 실패'
+            };
+        }
+    }
+    // 데이터 변환
+    async transformData(data, transformRules) {
+        try {
+            const response = await this.client.post('/api/data-processing/transform', {
+                data,
+                transformRules
+            });
+            return response.data;
+        }
+        catch (error) {
+            return {
+                success: false,
+                data: [],
+                error: error instanceof Error ? error.message : '데이터 변환 실패'
+            };
+        }
+    }
+    // 복합 데이터 처리 (필터링 → 집계 → 변환)
+    async processData(data, filterRules, aggregateRules, transformRules, groupBy) {
+        try {
+            const response = await this.client.post('/api/data-processing/process', {
+                data,
+                filterRules: filterRules || [],
+                aggregateRules: aggregateRules || [],
+                transformRules: transformRules || [],
+                groupBy: groupBy || []
+            });
+            return response.data;
+        }
+        catch (error) {
+            return {
+                success: false,
+                data: {
+                    success: false,
+                    data: [],
+                    error: error instanceof Error ? error.message : '데이터 처리 실패',
+                    metadata: {
+                        totalRecords: 0,
+                        processedRecords: 0,
+                        processingTime: 0,
+                        affectedFields: []
+                    }
+                },
+                error: error instanceof Error ? error.message : '데이터 처리 실패'
+            };
+        }
+    }
 }
 // 기본 API 클라이언트 인스턴스
 export const apiClient = new DiagramApiClient();

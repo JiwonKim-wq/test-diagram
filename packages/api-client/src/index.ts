@@ -1,5 +1,13 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { DatabaseNodeConfig, QueryResult, ApiResponse } from '@diagram/common';
+import { 
+  DatabaseNodeConfig, 
+  QueryResult, 
+  ApiResponse, 
+  FilterRule, 
+  AggregationRule, 
+  TransformRule,
+  ProcessingResult
+} from '@diagram/common';
 
 export class DiagramApiClient {
   private client: AxiosInstance;
@@ -155,10 +163,112 @@ export class DiagramApiClient {
       };
     }
   }
+
+  // === 데이터 처리 API 메서드들 ===
+
+  // 데이터 필터링
+  async filterData(data: any[], filterRules: FilterRule[]): Promise<ApiResponse<any[]>> {
+    try {
+      const response = await this.client.post('/api/data-processing/filter', {
+        data,
+        filterRules
+      });
+      return response.data;
+    } catch (error) {
+      return {
+        success: false,
+        data: [],
+        error: error instanceof Error ? error.message : '데이터 필터링 실패'
+      };
+    }
+  }
+
+  // 데이터 집계
+  async aggregateData(data: any[], aggregateRules: AggregationRule[], groupBy?: string[]): Promise<ApiResponse<any[]>> {
+    try {
+      const response = await this.client.post('/api/data-processing/aggregate', {
+        data,
+        aggregateRules,
+        groupBy: groupBy || []
+      });
+      return response.data;
+    } catch (error) {
+      return {
+        success: false,
+        data: [],
+        error: error instanceof Error ? error.message : '데이터 집계 실패'
+      };
+    }
+  }
+
+  // 데이터 변환
+  async transformData(data: any[], transformRules: TransformRule[]): Promise<ApiResponse<any[]>> {
+    try {
+      const response = await this.client.post('/api/data-processing/transform', {
+        data,
+        transformRules
+      });
+      return response.data;
+    } catch (error) {
+      return {
+        success: false,
+        data: [],
+        error: error instanceof Error ? error.message : '데이터 변환 실패'
+      };
+    }
+  }
+
+  // 복합 데이터 처리 (필터링 → 집계 → 변환)
+  async processData(
+    data: any[], 
+    filterRules?: FilterRule[], 
+    aggregateRules?: AggregationRule[], 
+    transformRules?: TransformRule[],
+    groupBy?: string[]
+  ): Promise<ApiResponse<ProcessingResult>> {
+    try {
+      const response = await this.client.post('/api/data-processing/process', {
+        data,
+        filterRules: filterRules || [],
+        aggregateRules: aggregateRules || [],
+        transformRules: transformRules || [],
+        groupBy: groupBy || []
+      });
+      return response.data;
+    } catch (error) {
+      return {
+        success: false,
+        data: {
+          success: false,
+          data: [],
+          error: error instanceof Error ? error.message : '데이터 처리 실패',
+          metadata: {
+            totalRecords: 0,
+            processedRecords: 0,
+            processingTime: 0,
+            affectedFields: []
+          }
+        },
+        error: error instanceof Error ? error.message : '데이터 처리 실패'
+      };
+    }
+  }
 }
 
 // 기본 API 클라이언트 인스턴스
 export const apiClient = new DiagramApiClient();
 
 // 타입 재내보내기
-export type { DatabaseNodeConfig, QueryResult, ApiResponse } from '@diagram/common'; 
+export type { 
+  DatabaseNodeConfig, 
+  QueryResult, 
+  ApiResponse, 
+  FilterRule, 
+  AggregationRule, 
+  TransformRule,
+  ProcessingResult,
+  FilterOperator,
+  AggregateFunction,
+  TransformType,
+  TransformOperation
+} from '@diagram/common'; 

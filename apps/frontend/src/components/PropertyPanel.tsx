@@ -18,7 +18,10 @@ import {
   ThemeIcon,
   Table,
   Paper,
-  Checkbox
+  Checkbox,
+  Modal,
+  Pagination,
+  Code
 } from '@mantine/core';
 import { 
   IconSettings, 
@@ -35,9 +38,12 @@ import {
 import { Node } from 'reactflow';
 import { NodeType } from '@diagram/common';
 import { useNodeValidation } from '../hooks/useNodeValidation';
+import { FilterConfig } from './PropertyPanel/FilterConfig';
+import { AggregateConfig } from './PropertyPanel/AggregateConfig';
 
 interface PropertyPanelProps {
   selectedNode?: Node | null;
+  onNodeUpdate?: (nodeId: string, updates: any) => void;
 }
 
 // 검증 결과 표시 컴포넌트
@@ -107,6 +113,33 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any; onNodeUpdate?: (updates:
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [connectionMessage, setConnectionMessage] = useState('');
   const [queryResult, setQueryResult] = useState<any>(null);
+  
+  // 모달 관련 상태
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  // 연결 데이터 변경 시 노드 업데이트
+  const handleConnectionDataChange = (field: string, value: string) => {
+    const newConnectionData = { ...connectionData, [field]: value };
+    setConnectionData(newConnectionData);
+    
+    // 노드 데이터 업데이트
+    if (onNodeUpdate) {
+      const updates: any = {
+        connectionConfig: {
+          ...connectionData,
+          [field]: field === 'port' ? parseInt(value) || 3306 : value
+        }
+      };
+      
+      if (field === 'query') {
+        updates.query = value;
+      }
+      
+      onNodeUpdate(updates);
+    }
+  };
 
   // 연결 테스트 함수
   const handleTestConnection = async () => {
@@ -207,7 +240,7 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any; onNodeUpdate?: (updates:
         label="호스트"
         placeholder="localhost"
         value={connectionData.host}
-        onChange={(e) => setConnectionData({...connectionData, host: e.target.value})}
+        onChange={(e) => handleConnectionDataChange('host', e.target.value)}
         error={!connectionData.host ? '호스트 주소가 필요합니다.' : null}
       />
 
@@ -215,22 +248,24 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any; onNodeUpdate?: (updates:
         label="포트"
         placeholder="3306"
         value={connectionData.port}
-        onChange={(e) => setConnectionData({...connectionData, port: e.target.value})}
+        onChange={(e) => handleConnectionDataChange('port', e.target.value)}
+        error={!connectionData.port ? '포트 번호가 필요합니다.' : null}
       />
 
       <TextInput
-        label="데이터베이스명"
+        label="데이터베이스"
         placeholder="database_name"
         value={connectionData.database}
-        onChange={(e) => setConnectionData({...connectionData, database: e.target.value})}
-        error={!connectionData.database ? '데이터베이스명이 필요합니다.' : null}
+        onChange={(e) => handleConnectionDataChange('database', e.target.value)}
+        error={!connectionData.database ? '데이터베이스 이름이 필요합니다.' : null}
       />
 
       <TextInput
         label="사용자명"
         placeholder="username"
         value={connectionData.username}
-        onChange={(e) => setConnectionData({...connectionData, username: e.target.value})}
+        onChange={(e) => handleConnectionDataChange('username', e.target.value)}
+        error={!connectionData.username ? '사용자명이 필요합니다.' : null}
       />
 
       <TextInput
@@ -238,15 +273,15 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any; onNodeUpdate?: (updates:
         placeholder="password"
         type="password"
         value={connectionData.password}
-        onChange={(e) => setConnectionData({...connectionData, password: e.target.value})}
+        onChange={(e) => handleConnectionDataChange('password', e.target.value)}
       />
 
       <Textarea
-        label="쿼리"
+        label="SQL 쿼리"
         placeholder="SELECT * FROM table_name"
-        rows={4}
         value={connectionData.query}
-        onChange={(e) => setConnectionData({...connectionData, query: e.target.value})}
+        onChange={(e) => handleConnectionDataChange('query', e.target.value)}
+        minRows={3}
         error={!connectionData.query ? '쿼리가 필요합니다.' : null}
       />
 
@@ -293,10 +328,18 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any; onNodeUpdate?: (updates:
       {/* 쿼리 결과 표시 */}
       {queryResult && (
         <Paper p="md" withBorder>
-          <Text size="sm" fw={500} mb="sm">쿼리 결과</Text>
+          <Group justify="space-between" mb="sm">
+            <Text size="sm" fw={500}>쿼리 결과</Text>
+            <Text size="xs" c="dimmed">더블클릭하여 큰 화면으로 보기</Text>
+          </Group>
           {queryResult.rows && queryResult.rows.length > 0 ? (
             <ScrollArea h={200}>
-              <Table striped highlightOnHover>
+              <Table 
+                striped 
+                highlightOnHover 
+                style={{ cursor: 'pointer' }}
+                onDoubleClick={() => setIsModalOpen(true)}
+              >
                 <Table.Thead>
                   <Table.Tr>
                     {Object.keys(queryResult.rows[0]).map((column) => (
@@ -327,6 +370,91 @@ const DatabaseNodeProperties: React.FC<{ nodeData: any; onNodeUpdate?: (updates:
           )}
         </Paper>
       )}
+
+      {/* 쿼리 결과 모달 */}
+      <Modal
+        opened={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setCurrentPage(1);
+        }}
+        size="95%"
+        title={
+          <Group>
+            <IconTable size={20} />
+            <Text fw={500}>데이터베이스 쿼리 결과</Text>
+            <Badge color="blue">{queryResult?.rows?.length || 0}건</Badge>
+          </Group>
+        }
+      >
+        <Stack gap="md">
+          {/* 연결 정보 표시 */}
+          <Paper p="sm" withBorder>
+            <Group>
+              <IconDatabase size={16} />
+              <Text size="sm" fw={500}>연결 정보:</Text>
+              <Code>{connectionData.host}:{connectionData.port}/{connectionData.database}</Code>
+            </Group>
+          </Paper>
+
+          {/* 실행된 쿼리 표시 */}
+          <Paper p="sm" withBorder>
+            <Text size="sm" fw={500} mb="xs">실행된 쿼리:</Text>
+            <Code block>{connectionData.query}</Code>
+          </Paper>
+
+          {/* 전체 쿼리 결과 테이블 */}
+          {queryResult?.rows && queryResult.rows.length > 0 ? (
+            <>
+              <ScrollArea h={400}>
+                <Table striped highlightOnHover>
+                  <Table.Thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
+                    <Table.Tr>
+                      <Table.Th style={{ width: '50px' }}>#</Table.Th>
+                      {Object.keys(queryResult.rows[0]).map((column) => (
+                        <Table.Th key={column}>{column}</Table.Th>
+                      ))}
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {queryResult.rows
+                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .map((row: any, index: number) => (
+                        <Table.Tr key={index}>
+                          <Table.Td style={{ fontWeight: 500, color: '#666' }}>
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </Table.Td>
+                          {Object.values(row).map((value: any, cellIndex: number) => (
+                            <Table.Td key={cellIndex}>
+                              {value !== null ? String(value) : <Text c="dimmed" fs="italic">NULL</Text>}
+                            </Table.Td>
+                          ))}
+                        </Table.Tr>
+                      ))}
+                  </Table.Tbody>
+                </Table>
+              </ScrollArea>
+
+              {/* 페이지네이션 */}
+              {queryResult.rows.length > itemsPerPage && (
+                <Group justify="center" mt="md">
+                  <Pagination
+                    value={currentPage}
+                    onChange={setCurrentPage}
+                    total={Math.ceil(queryResult.rows.length / itemsPerPage)}
+                    size="sm"
+                  />
+                  <Text size="xs" c="dimmed">
+                    {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, queryResult.rows.length)} / {queryResult.rows.length}건
+                  </Text>
+                </Group>
+              )}
+            </>
+          ) : (
+            <Text ta="center" c="dimmed" py="xl">결과가 없습니다.</Text>
+          )}
+        </Stack>
+      </Modal>
     </Stack>
   );
 };
@@ -873,15 +1001,47 @@ const OutputNodeProperties: React.FC<{ nodeData: any }> = ({ nodeData }) => {
   );
 };
 
-const renderNodeProperties = (nodeType: NodeType, nodeData: any) => {
+const renderNodeProperties = (nodeType: NodeType, nodeData: any, onNodeUpdate?: (updates: any) => void) => {
+  // 임시 더미 데이터 (실제로는 노드 간 연결에서 가져와야 함)
+  const mockInputData = [
+    { id: 1, name: 'John', age: 25, department: 'IT', salary: 5000, active: true },
+    { id: 2, name: 'Jane', age: 30, department: 'HR', salary: 4500, active: false },
+    { id: 3, name: 'Bob', age: 35, department: 'IT', salary: 6000, active: true },
+    { id: 4, name: 'Alice', age: 28, department: 'Finance', salary: 5500, active: true }
+  ];
+
+  const mockFields = ['id', 'name', 'age', 'department', 'salary', 'active'];
+
   switch (nodeType) {
     case NodeType.DATABASE:
     case NodeType.LOGPRESSO:
-      return <DatabaseNodeProperties nodeData={nodeData} />;
+      return <DatabaseNodeProperties nodeData={nodeData} onNodeUpdate={onNodeUpdate} />;
     case NodeType.FILTER:
-      return <FilterNodeProperties nodeData={nodeData} />;
+      return (
+        <FilterConfig 
+          data={nodeData} 
+          onChange={(updates) => onNodeUpdate?.(updates)}
+          availableFields={mockFields}
+          inputData={mockInputData}
+          onExecute={(result) => {
+            console.log('Filter execution result:', result);
+            // 여기서 결과를 노드 데이터에 저장하거나 다른 처리를 할 수 있음
+          }}
+        />
+      );
     case NodeType.AGGREGATE:
-      return <AggregateNodeProperties nodeData={nodeData} />;
+      return (
+        <AggregateConfig 
+          data={nodeData} 
+          onChange={(updates) => onNodeUpdate?.(updates)}
+          availableFields={mockFields}
+          inputData={mockInputData}
+          onExecute={(result) => {
+            console.log('Aggregate execution result:', result);
+            // 여기서 결과를 노드 데이터에 저장하거나 다른 처리를 할 수 있음
+          }}
+        />
+      );
     case NodeType.TRANSFORM:
       return <TransformNodeProperties nodeData={nodeData} />;
     case NodeType.JOIN:
@@ -899,7 +1059,13 @@ const renderNodeProperties = (nodeType: NodeType, nodeData: any) => {
   }
 };
 
-export const PropertyPanel: React.FC<PropertyPanelProps> = ({ selectedNode }) => {
+export const PropertyPanel: React.FC<PropertyPanelProps> = ({ selectedNode, onNodeUpdate }) => {
+  const handleNodeDataUpdate = (updates: any) => {
+    if (selectedNode && onNodeUpdate) {
+      onNodeUpdate(selectedNode.id, updates);
+    }
+  };
+
   if (!selectedNode) {
     return (
       <Stack gap="md">
@@ -946,7 +1112,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({ selectedNode }) =>
           </Tabs.List>
 
           <Tabs.Panel value="properties" pt="md">
-            {renderNodeProperties(selectedNode.type as NodeType, selectedNode.data)}
+            {renderNodeProperties(selectedNode.type as NodeType, selectedNode.data, handleNodeDataUpdate)}
           </Tabs.Panel>
 
           <Tabs.Panel value="info" pt="md">

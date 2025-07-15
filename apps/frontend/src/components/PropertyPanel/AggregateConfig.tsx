@@ -11,15 +11,21 @@ import {
   Switch,
   MultiSelect,
   Badge,
-  Divider
+  Divider,
+  Alert,
+  Loader,
+  Text
 } from '@mantine/core';
-import { IconPlus, IconTrash, IconGripVertical } from '@tabler/icons-react';
+import { IconPlus, IconTrash, IconGripVertical, IconPlayerPlay, IconCheck, IconX } from '@tabler/icons-react';
 import { AggregateNodeData, AggregationRule, AggregateFunction, OrderByRule } from '@diagram/common';
+import { DataProcessingService } from '../../services/dataProcessingService';
 
 interface AggregateConfigProps {
   data: AggregateNodeData;
   onChange: (data: AggregateNodeData) => void;
   availableFields: string[];
+  inputData?: any[];
+  onExecute?: (result: any) => void;
 }
 
 const AGGREGATE_FUNCTIONS = [
@@ -37,7 +43,9 @@ const AGGREGATE_FUNCTIONS = [
 export const AggregateConfig: React.FC<AggregateConfigProps> = ({
   data,
   onChange,
-  availableFields
+  availableFields,
+  inputData = [],
+  onExecute
 }) => {
   const [newAggregation, setNewAggregation] = useState<Partial<AggregationRule>>({
     field: '',
@@ -46,6 +54,11 @@ export const AggregateConfig: React.FC<AggregateConfigProps> = ({
     distinct: false,
     enabled: true
   });
+
+  // 실행 상태 관리
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionResult, setExecutionResult] = useState<any>(null);
+  const [executionError, setExecutionError] = useState<string | null>(null);
 
   const [newOrderBy, setNewOrderBy] = useState<Partial<OrderByRule>>({
     field: '',
@@ -117,6 +130,44 @@ export const AggregateConfig: React.FC<AggregateConfigProps> = ({
   const removeOrderBy = (index: number) => {
     const updatedOrderBy = (data.orderBy || []).filter((_, i) => i !== index);
     onChange({ ...data, orderBy: updatedOrderBy });
+  };
+
+  // 집계 실행 함수
+  const executeAggregate = async () => {
+    if (!inputData || inputData.length === 0) {
+      setExecutionError('입력 데이터가 없습니다');
+      return;
+    }
+
+    if (!data.aggregations || data.aggregations.length === 0) {
+      setExecutionError('집계 조건이 설정되지 않았습니다');
+      return;
+    }
+
+    setIsExecuting(true);
+    setExecutionError(null);
+    setExecutionResult(null);
+
+    try {
+      const result = await DataProcessingService.aggregateData(
+        inputData, 
+        data.aggregations, 
+        data.groupBy || []
+      );
+      
+      if (result.success) {
+        setExecutionResult(result);
+        if (onExecute) {
+          onExecute(result);
+        }
+      } else {
+        setExecutionError(result.error || '집계 실행 중 오류가 발생했습니다');
+      }
+    } catch (error) {
+      setExecutionError(error instanceof Error ? error.message : '집계 실행 중 오류가 발생했습니다');
+    } finally {
+      setIsExecuting(false);
+    }
   };
 
   // 그룹화 + 집계 필드를 정렬 옵션으로 생성
@@ -347,6 +398,53 @@ export const AggregateConfig: React.FC<AggregateConfigProps> = ({
           </Paper>
         )}
       </Box>
+
+      {/* 실행 섹션 */}
+      <Paper p="md" withBorder>
+        <Stack gap="md">
+          <Group justify="space-between" align="center">
+            <Text fw={500}>집계 실행</Text>
+            <Badge color={inputData?.length > 0 ? 'green' : 'gray'}>
+              입력 데이터: {inputData?.length || 0}개
+            </Badge>
+          </Group>
+
+          <Button
+            leftSection={isExecuting ? <Loader size={16} /> : <IconPlayerPlay size={16} />}
+            onClick={executeAggregate}
+            disabled={isExecuting || !inputData?.length || !data.aggregations?.length}
+            loading={isExecuting}
+            fullWidth
+          >
+            {isExecuting ? '집계 실행 중...' : '집계 실행'}
+          </Button>
+
+          {/* 실행 결과 표시 */}
+          {executionResult && (
+            <Alert icon={<IconCheck size={16} />} color="green">
+              <Stack gap="xs">
+                <Text fw={500}>실행 성공</Text>
+                <Text size="sm">
+                  {inputData.length}개 → {executionResult.data.length}개로 집계됨
+                </Text>
+                {executionResult.metadata?.processingTime && (
+                  <Text size="xs" c="dimmed">
+                    처리 시간: {executionResult.metadata.processingTime}ms
+                  </Text>
+                )}
+              </Stack>
+            </Alert>
+          )}
+
+          {/* 실행 에러 표시 */}
+          {executionError && (
+            <Alert icon={<IconX size={16} />} color="red">
+              <Text fw={500}>실행 실패</Text>
+              <Text size="sm">{executionError}</Text>
+            </Alert>
+          )}
+        </Stack>
+      </Paper>
     </Stack>
   );
 }; 

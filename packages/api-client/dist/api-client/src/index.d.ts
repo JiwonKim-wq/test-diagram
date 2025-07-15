@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { DatabaseNodeConfig, QueryResult, ApiResponse } from '@diagram/common';
+import { DatabaseNodeConfig, QueryResult, ApiResponse, FilterRule, AggregationRule, TransformRule, ProcessingResult } from '@diagram/common';
 export declare class DiagramApiClient {
     private client;
     constructor(baseURL?: string);
@@ -16,7 +16,11 @@ export declare class DiagramApiClient {
     getDiagrams(): Promise<ApiResponse<any[]>>;
     executeDiagram(diagramId: string): Promise<ApiResponse<any>>;
     getExecutionResult(executionId: string): Promise<ApiResponse<any>>;
+    filterData(data: any[], filterRules: FilterRule[]): Promise<ApiResponse<any[]>>;
+    aggregateData(data: any[], aggregateRules: AggregationRule[], groupBy?: string[]): Promise<ApiResponse<any[]>>;
+    transformData(data: any[], transformRules: TransformRule[]): Promise<ApiResponse<any[]>>;
+    processData(data: any[], filterRules?: FilterRule[], aggregateRules?: AggregationRule[], transformRules?: TransformRule[], groupBy?: string[]): Promise<ApiResponse<ProcessingResult>>;
 }
 export declare const apiClient: DiagramApiClient;
-export type { DatabaseNodeConfig, QueryResult, ApiResponse } from '@diagram/common';
+export type { DatabaseNodeConfig, QueryResult, ApiResponse, FilterRule, AggregationRule, TransformRule, ProcessingResult, FilterOperator, AggregateFunction, TransformType, TransformOperation } from '@diagram/common';
 //# sourceMappingURL=index.d.ts.map

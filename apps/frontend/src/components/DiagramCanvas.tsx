@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -178,14 +178,31 @@ const initialEdges = [
 
 interface DiagramCanvasProps {
   onNodeSelect?: (node: Node | null) => void;
-  onNodeAdd?: (addNodeFn: (nodeType: NodeType, position?: { x: number; y: number }) => void) => void;
+  onNodeAdd?: (addNodeFn: (nodeType: NodeType, position?: { x: number; y: number }) => void, updateNodeFn: (nodeId: string, updates: any) => void) => void;
 }
 
 const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect, onNodeAdd }) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { project } = useReactFlow();
+
+  // 노드 업데이트 함수
+  const updateNode = useCallback((nodeId: string, updates: any) => {
+    setNodes((nodes) => nodes.map((node) => {
+      if (node.id === nodeId) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            ...updates
+          }
+        };
+      }
+      return node;
+    }));
+  }, [setNodes]);
 
   // 노드 추가 함수 (더블클릭용)
   const addNodeToCanvas = useCallback((nodeType: NodeType, position?: { x: number; y: number }) => {
@@ -203,8 +220,9 @@ const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect, onNode
     const template = nodeTemplates[nodeType];
     const newPosition = position || { x: Math.random() * 300 + 100, y: Math.random() * 300 + 100 };
     
+    const nodeId = generateNodeId();
     const newNode = {
-      id: generateNodeId(),
+      id: nodeId,
       type: nodeType,
       position: newPosition,
       data: createNodeData(nodeType, template.label, template.description),
@@ -213,23 +231,60 @@ const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect, onNode
     setNodes((nds) => nds.concat(newNode));
   }, [setNodes]);
 
-  // onNodeAdd prop을 통해 노드 추가 함수 전달
+  // onNodeAdd prop을 통해 노드 추가 및 업데이트 함수 전달
   React.useEffect(() => {
     if (onNodeAdd) {
-      onNodeAdd(addNodeToCanvas as any);
+      onNodeAdd(addNodeToCanvas as any, updateNode);
     }
-  }, [onNodeAdd, addNodeToCanvas]);
+  }, [onNodeAdd, addNodeToCanvas, updateNode]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
 
+  // 노드 삭제 함수
+  const deleteNode = useCallback((nodeId: string) => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== nodeId));
+    setEdges((edges) => edges.filter((edge) => 
+      edge.source !== nodeId && edge.target !== nodeId
+    ));
+    if (selectedNodeId === nodeId) {
+      setSelectedNodeId(null);
+      onNodeSelect?.(null);
+    }
+  }, [setNodes, setEdges, selectedNodeId, onNodeSelect]);
+
+  const deleteSelectedNode = useCallback(() => {
+    if (selectedNodeId) {
+      deleteNode(selectedNodeId);
+    }
+  }, [selectedNodeId, deleteNode]);
+
+  // 키보드 이벤트 핸들러
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault();
+        deleteSelectedNode();
+      }
+    };
+
+    // 브라우저 전체에 키보드 이벤트 리스너 추가
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [deleteSelectedNode]);
+
   const onNodeClick: NodeMouseHandler = useCallback((event, node) => {
+    setSelectedNodeId(node.id);
     onNodeSelect?.(node);
   }, [onNodeSelect]);
 
   const onPaneClick = useCallback(() => {
+    setSelectedNodeId(null);
     onNodeSelect?.(null);
   }, [onNodeSelect]);
 

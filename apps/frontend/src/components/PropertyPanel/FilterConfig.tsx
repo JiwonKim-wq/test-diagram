@@ -12,15 +12,22 @@ import {
   NumberInput,
   Textarea,
   MultiSelect,
-  Badge
+  Badge,
+  Alert,
+  Loader,
+  Text,
+  Divider
 } from '@mantine/core';
-import { IconPlus, IconTrash, IconGripVertical } from '@tabler/icons-react';
+import { IconPlus, IconTrash, IconGripVertical, IconPlayerPlay, IconCheck, IconX } from '@tabler/icons-react';
 import { FilterNodeData, FilterRule, FilterOperator } from '@diagram/common';
+import { DataProcessingService } from '../../services/dataProcessingService';
 
 interface FilterConfigProps {
   data: FilterNodeData;
   onChange: (data: FilterNodeData) => void;
   availableFields: string[];
+  inputData?: any[];
+  onExecute?: (result: any) => void;
 }
 
 const FILTER_OPERATORS = [
@@ -53,7 +60,9 @@ const DATA_TYPES = [
 export const FilterConfig: React.FC<FilterConfigProps> = ({
   data,
   onChange,
-  availableFields
+  availableFields,
+  inputData = [],
+  onExecute
 }) => {
   const [newFilter, setNewFilter] = useState<Partial<FilterRule>>({
     field: '',
@@ -63,6 +72,11 @@ export const FilterConfig: React.FC<FilterConfigProps> = ({
     caseSensitive: false,
     enabled: true
   });
+
+  // 실행 상태 관리
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionResult, setExecutionResult] = useState<any>(null);
+  const [executionError, setExecutionError] = useState<string | null>(null);
 
   const addFilter = () => {
     if (!newFilter.field) return;
@@ -101,6 +115,40 @@ export const FilterConfig: React.FC<FilterConfigProps> = ({
   const removeFilter = (index: number) => {
     const updatedFilters = data.filters.filter((_, i) => i !== index);
     onChange({ ...data, filters: updatedFilters });
+  };
+
+  // 필터 실행 함수
+  const executeFilter = async () => {
+    if (!inputData || inputData.length === 0) {
+      setExecutionError('입력 데이터가 없습니다');
+      return;
+    }
+
+    if (!data.filters || data.filters.length === 0) {
+      setExecutionError('필터 조건이 설정되지 않았습니다');
+      return;
+    }
+
+    setIsExecuting(true);
+    setExecutionError(null);
+    setExecutionResult(null);
+
+    try {
+      const result = await DataProcessingService.filterData(inputData, data.filters);
+      
+      if (result.success) {
+        setExecutionResult(result);
+        if (onExecute) {
+          onExecute(result);
+        }
+      } else {
+        setExecutionError(result.error || '필터링 실행 중 오류가 발생했습니다');
+      }
+    } catch (error) {
+      setExecutionError(error instanceof Error ? error.message : '필터링 실행 중 오류가 발생했습니다');
+    } finally {
+      setIsExecuting(false);
+    }
   };
 
   const renderValueInput = (filter: FilterRule, index: number) => {
@@ -354,6 +402,53 @@ export const FilterConfig: React.FC<FilterConfigProps> = ({
               필터 추가
             </Button>
           </Group>
+        </Stack>
+      </Paper>
+
+      {/* 실행 섹션 */}
+      <Paper p="md" withBorder>
+        <Stack gap="md">
+          <Group justify="space-between" align="center">
+            <Text fw={500}>필터 실행</Text>
+            <Badge color={inputData?.length > 0 ? 'green' : 'gray'}>
+              입력 데이터: {inputData?.length || 0}개
+            </Badge>
+          </Group>
+
+          <Button
+            leftSection={isExecuting ? <Loader size={16} /> : <IconPlayerPlay size={16} />}
+            onClick={executeFilter}
+            disabled={isExecuting || !inputData?.length || !data.filters?.length}
+            loading={isExecuting}
+            fullWidth
+          >
+            {isExecuting ? '필터링 실행 중...' : '필터 실행'}
+          </Button>
+
+          {/* 실행 결과 표시 */}
+          {executionResult && (
+            <Alert icon={<IconCheck size={16} />} color="green">
+              <Stack gap="xs">
+                <Text fw={500}>실행 성공</Text>
+                <Text size="sm">
+                  {executionResult.metadata?.originalCount || inputData.length}개 → {executionResult.data.length}개로 필터링됨
+                </Text>
+                {executionResult.metadata?.processingTime && (
+                  <Text size="xs" c="dimmed">
+                    처리 시간: {executionResult.metadata.processingTime}ms
+                  </Text>
+                )}
+              </Stack>
+            </Alert>
+          )}
+
+          {/* 실행 에러 표시 */}
+          {executionError && (
+            <Alert icon={<IconX size={16} />} color="red">
+              <Text fw={500}>실행 실패</Text>
+              <Text size="sm">{executionError}</Text>
+            </Alert>
+          )}
         </Stack>
       </Paper>
     </Stack>

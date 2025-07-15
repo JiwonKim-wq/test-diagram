@@ -17,6 +17,9 @@ module.exports = {
   transform: {
     '^.+\\.ts$': 'ts-jest'
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(@diagram)/)'
+  ],
   extensionsToTreatAsEsm: ['.ts'],
   globals: {
     'ts-jest': {

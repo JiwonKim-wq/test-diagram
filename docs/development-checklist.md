@@ -144,6 +144,21 @@
 - [x] 결과 미리보기 기능 구현
 - [x] **[커밋]** 데이터 처리 노드 UI 완료
 
+#### 백엔드 데이터 처리 API 구현 (TDD)
+- [x] DataProcessingService 구현 (TDD) - utils 엔진 활용
+- [x] DataProcessingController 구현 (필터링, 집계, 변환, 복합 처리)
+- [x] 데이터 처리 API 라우터 추가 (/api/data-processing)
+- [x] Express 메인 앱에 라우터 연결
+- [x] **[커밋]** 백엔드 데이터 처리 API 완료
+
+#### 프론트엔드-백엔드 연결
+- [x] api-client 패키지에 데이터 처리 메서드 추가 (TDD)
+- [x] 프론트엔드 DataProcessingService 구현
+- [x] FilterConfig, AggregateConfig에 실제 실행 기능 추가
+- [x] PropertyPanel에서 실제 백엔드 API 연결
+- [x] 실행 상태 표시 및 결과 피드백 UI 구현
+- [x] **[커밋]** 프론트엔드-백엔드 데이터 처리 연결 완료
+
 ### 주 9-10: Logpresso 연동 및 실행 엔진
 
 #### Logpresso 커넥터 및 실행 엔진 (TDD)

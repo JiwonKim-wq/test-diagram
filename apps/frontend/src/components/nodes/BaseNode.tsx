@@ -1,7 +1,7 @@
 import React from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
 import { Card, Group, Text, ActionIcon, Badge, Tooltip } from '@mantine/core';
-import { IconGripVertical, IconAlertTriangle, IconCheck } from '@tabler/icons-react';
+import { IconGripVertical, IconAlertTriangle, IconCheck, IconX } from '@tabler/icons-react';
 import { BaseNode as BaseNodeType, NodeType } from '@diagram/common';
 
 interface BaseNodeProps extends NodeProps {
@@ -13,6 +13,7 @@ interface BaseNodeProps extends NodeProps {
     errors?: string[];
     warnings?: string[];
   };
+  onDelete?: (nodeId: string) => void;
 }
 
 const NodeTypeColors = {
@@ -40,7 +41,9 @@ const NodeTypeIcons = {
 export const BaseNodeComponent: React.FC<BaseNodeProps> = ({ 
   data, 
   selected, 
-  dragging 
+  dragging,
+  onDelete,
+  id
 }) => {
   const nodeColor = NodeTypeColors[data.nodeType] || '#868e96';
   const nodeIcon = NodeTypeIcons[data.nodeType] || '⚙️';
@@ -116,6 +119,24 @@ export const BaseNodeComponent: React.FC<BaseNodeProps> = ({
           >
             <IconGripVertical size={12} />
           </ActionIcon>
+          
+          {/* 삭제 버튼 */}
+          {onDelete && (
+            <Tooltip label="노드 삭제">
+              <ActionIcon
+                variant="subtle"
+                color="red"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(id);
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <IconX size={12} />
+              </ActionIcon>
+            </Tooltip>
+          )}
         </Group>
       </Group>
 
