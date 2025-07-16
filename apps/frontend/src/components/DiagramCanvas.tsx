@@ -264,7 +264,7 @@ const DiagramCanvasInner: React.FC<DiagramCanvasProps> = ({ onNodeSelect, onNode
   // 키보드 이벤트 핸들러
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Delete' || event.key === 'Backspace') {
+      if (event.key === 'Delete') {
         event.preventDefault();
         deleteSelectedNode();
       }
