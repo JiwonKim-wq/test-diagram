@@ -1,4 +1,4 @@
-import { apiClient } from '../../../packages/api-client/dist/index';
+import { apiClient } from '@diagram/api-client';
 import { 
   FilterRule, 
   AggregationRule, 

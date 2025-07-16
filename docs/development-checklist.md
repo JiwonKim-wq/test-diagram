@@ -18,6 +18,7 @@
 - [x] packages/common, packages/api-client, packages/utils 폴더 생성
 - [x] Turbo 설정 (turbo.json)
 - [x] 공통 TypeScript 설정 (tsconfig.json)
+- [x] 루트 package.json에 workspaces 필드 추가 (도구 호환성 개선)
 - [x] **[커밋]** 모노레포 기본 구조 설정 완료
 
 #### 공통 패키지 초기 설정
@@ -165,6 +166,8 @@
 - [x] pnpm workspace 링크 재설정
 - [x] CRA import 정책 준수 확인
 - [x] 모든 패키지 재빌드 및 테스트
+- [x] 프론트엔드 import 경로 수정 (상대 경로 → workspace 패키지)
+- [x] 페이지 에러 해결 및 정상 로딩 확인
 - [x] **[커밋]** 모노레포 환경 문제 해결 완료
 
 ### 주 9-10: Logpresso 연동 및 실행 엔진
